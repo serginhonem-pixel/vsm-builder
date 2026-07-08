@@ -1,0 +1,159 @@
+{
+  "supplier": {
+    "name": "FORNECEDOR",
+    "product": "CAÇAMBA CONSTRUTOR",
+    "infoFlow": "electronic",
+    "infoFlowDir": "from-pcp"
+  },
+  "customer": {
+    "name": "CLIENTE",
+    "infoFlow": "manual",
+    "infoFlowDir": "from-pcp"
+  },
+  "pcp": {
+    "name": "PCP\nMRP"
+  },
+  "processes": [
+    {
+      "id": "p1",
+      "name": "CORTE TRANSVERSAL",
+      "ct": "5",
+      "ctUnit": "Seg",
+      "setup": "0",
+      "ops": "1",
+      "turnos": "1",
+      "uptime": "95%",
+      "performance": "60",
+      "quality": "100%",
+      "info": "",
+      "infoFlow": "electronic",
+      "pushDir": "push",
+      "infoFlowDir": "from-pcp",
+      "pacemaker": false
+    },
+    {
+      "id": "p2",
+      "name": "ESTAMPAR",
+      "ct": "21",
+      "ctUnit": "Seg",
+      "setup": "0",
+      "ops": "1",
+      "turnos": "2",
+      "uptime": "95%",
+      "performance": "75",
+      "quality": "100%",
+      "info": "",
+      "infoFlow": "electronic",
+      "pushDir": "push",
+      "infoFlowDir": "from-pcp",
+      "pacemaker": false
+    },
+    {
+      "id": "p3",
+      "name": "RECORTE",
+      "ct": "13",
+      "ctUnit": "Seg",
+      "setup": "0",
+      "ops": "1",
+      "turnos": "1",
+      "uptime": "95%",
+      "performance": "65",
+      "quality": "100%",
+      "info": "",
+      "infoFlow": "electronic",
+      "pushDir": "push",
+      "infoFlowDir": "from-pcp",
+      "pacemaker": false
+    },
+    {
+      "id": "p-yn8cv",
+      "name": "DEBRUM",
+      "ct": "18",
+      "ctUnit": "Seg",
+      "setup": "0",
+      "ops": "1",
+      "turnos": "2",
+      "uptime": "95%",
+      "performance": "65",
+      "quality": "100%",
+      "info": "",
+      "infoFlow": "electronic",
+      "pushDir": "push",
+      "infoFlowDir": "from-pcp",
+      "pacemaker": false
+    },
+    {
+      "id": "p-djpc3",
+      "name": "CARIMBO",
+      "ct": "9",
+      "ctUnit": "Seg",
+      "setup": "0",
+      "ops": "1",
+      "turnos": "2",
+      "uptime": "95%",
+      "performance": "60",
+      "quality": "100%",
+      "info": "",
+      "infoFlow": "electronic",
+      "pushDir": "push",
+      "infoFlowDir": "from-pcp",
+      "pacemaker": false
+    }
+  ],
+  "wips": [
+    {
+      "id": "w0",
+      "qty": "50000",
+      "unit": "kg",
+      "flowType": "push",
+      "material": "",
+      "factor": "1",
+      "consumoDiario": "15000"
+    },
+    {
+      "id": "w1",
+      "qty": "3500",
+      "unit": "pç",
+      "flowType": "push",
+      "material": "",
+      "factor": "1",
+      "consumoDiario": ""
+    },
+    {
+      "id": "w2",
+      "qty": "2500",
+      "unit": "pç",
+      "flowType": "push",
+      "material": "",
+      "factor": "1",
+      "consumoDiario": ""
+    },
+    {
+      "id": "w3",
+      "qty": "3000",
+      "unit": "pç",
+      "flowType": "push",
+      "material": "",
+      "factor": "1",
+      "consumoDiario": ""
+    },
+    {
+      "id": "w-c0brv",
+      "qty": "3600",
+      "unit": "pç",
+      "flowType": "push",
+      "material": "",
+      "factor": "1",
+      "consumoDiario": ""
+    },
+    {
+      "id": "w-618xm",
+      "qty": "0",
+      "unit": "pç",
+      "flowType": "push",
+      "material": "",
+      "factor": "1",
+      "consumoDiario": ""
+    }
+  ]
+}

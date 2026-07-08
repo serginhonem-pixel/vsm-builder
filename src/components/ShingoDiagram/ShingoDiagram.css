@@ -1,0 +1,370 @@
+/* ── Página (substitui o canvas, não é mais modal) ── */
+.shingo-page {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  padding: 16px;
+  background: #f5f6f7;
+}
+
+.shingo-modal {
+  flex: 1;
+  background: #fff;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.shingo-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  background: #fff;
+}
+.shingo-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
+  white-space: nowrap;
+}
+.shingo-header-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+
+/* ── View switcher ── */
+.view-switcher {
+  display: flex;
+  gap: 4px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 3px;
+}
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.view-btn:hover { background: #e5e7eb; color: #374151; }
+.view-btn.active { background: #fff; color: #111827; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.view-icon { font-size: 15px; }
+
+/* ── Body (canvas + sidebar) ── */
+.shingo-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Canvas area ── */
+.shingo-canvas-area {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  background: #f9fafb;
+  min-width: 0;
+}
+
+.shingo-canvas-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  padding: 40px 24px;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.scroll-faixas { align-items: flex-start; padding-top: 24px; }
+
+.shingo-svg { display: block; flex-shrink: 0; }
+
+/* ── Tabela view ── */
+.shingo-table-wrap { overflow: auto; flex: 1; padding: 16px 24px; }
+.shingo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.shingo-table th {
+  background: #f3f4f6;
+  padding: 10px 10px;
+  text-align: center;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #d1d5db;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.shingo-table td { padding: 4px 6px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+.row-va   { background: #fff; }
+.row-nva  { background: #fff7ed; }
+.row-selected { background: #eff6ff !important; }
+.td-num   { text-align: center; color: #9ca3af; font-size: 11px; width: 28px; }
+.td-sym   { text-align: center; width: 36px; position: relative; }
+.sym-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #f3f4f6; transform: translateX(-50%); z-index: 0; pointer-events: none; }
+.sym-btn  { position: relative; z-index: 1; background: none; border: none; cursor: pointer; padding: 6px 3px; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 4px; opacity: 0.3; transition: opacity 0.1s; }
+.sym-btn:hover  { opacity: 0.7; }
+.sym-btn.sym-active { opacity: 1; }
+.td-va { text-align: center; }
+
+/* ── Yamazumi ── */
+.yamazumi-wrap { flex: 1; overflow: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
+.yamazumi-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 16px 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+.yama-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151; }
+.yama-color { display: inline-block; width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.yama-pct { color: #9ca3af; font-size: 12px; }
+.yama-total { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; margin-left: auto; }
+
+.shingo-svg {
+  display: block;
+}
+
+.shingo-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ── Sidebar (edit panel) ── */
+.shingo-sidebar {
+  width: 280px;
+  border-left: 1px solid #e5e7eb;
+  background: #fff;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.shingo-edit-empty {
+  padding: 32px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.shingo-edit-hint { font-size: 12px; color: #d1d5db; margin-top: 8px; }
+
+.shingo-edit-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.shingo-edit-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 14px;
+}
+.shingo-edit-header button { margin-left: auto; }
+
+.shingo-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.shingo-edit-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.shingo-edit-field input,
+.shingo-edit-field select,
+.shingo-edit-field textarea {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #f9fafb;
+  color: #111827;
+}
+.shingo-edit-field input:focus,
+.shingo-edit-field textarea:focus {
+  outline: none;
+  border-color: #93c5fd;
+  background: #f0f9ff;
+}
+.shingo-edit-field textarea { resize: vertical; }
+
+.shingo-edit-row {
+  display: flex;
+  gap: 8px;
+}
+.shingo-edit-row .shingo-edit-field { flex: 1; }
+
+/* Seletor de tipo */
+.shingo-type-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.type-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: left;
+}
+.type-btn:hover { background: #f3f4f6; }
+.type-btn.active { font-weight: 600; }
+
+/* VA/NVA */
+.shingo-edit-va { display: flex; }
+.shingo-va-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.shingo-va-btn.va  { background: #d1fae5; color: #065f46; }
+.shingo-va-btn.nva { background: #fee2e2; color: #991b1b; }
+
+/* Delete */
+.shingo-del {
+  background: none;
+  border: none;
+  color: #d1d5db;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+.shingo-del:hover { color: #ef4444; background: #fee2e2; }
+
+.shingo-del-full {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #dc2626;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.shingo-del-full:hover { background: #fee2e2; }
+
+/* ── Footer ── */
+.shingo-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.shingo-totals-row { display: flex; gap: 6px; align-items: center; }
+.total-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+}
+.footer-stat { font-size: 13px; color: #6b7280; }
+.footer-stat strong { color: #111827; }
+.ml-auto { margin-left: auto; }
+
+/* ── Buttons ── */
+.shingo-btn {
+  padding: 7px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  color: #374151;
+}
+.shingo-btn:hover { background: #f3f4f6; }
+
+.shingo-btn-primary {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.shingo-btn-primary:hover { background: #1e40af; }
+
+.shingo-btn-add {
+  padding: 7px 16px;
+  border: 1px dashed #93c5fd;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.shingo-btn-add:hover { background: #dbeafe; }
+
+.shingo-btn-back {
+  padding: 7px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+.shingo-btn-back:hover { background: #f3f4f6; border-color: #9ca3af; }
+
+@media print {
+  .shingo-overlay { position: static; background: none; }
+  .shingo-modal { box-shadow: none; height: auto; width: 100%; border-radius: 0; }
+  .shingo-header-actions, .shingo-footer, .shingo-sidebar { display: none; }
+  .shingo-canvas-area { overflow: visible; }
+}

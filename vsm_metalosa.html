@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VSM — Value Stream Map</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top toolbar ── */
+.toolbar {
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.toolbar-title { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: .05em; }
+.t-label { font-size: 11px; color: #888; }
+.t-input {
+  width: 60px; font-size: 11px; padding: 3px 6px;
+  border: 1px solid #444; border-radius: 4px;
+  background: #222; color: #fff;
+}
+.t-input:focus { outline: 1px solid #e33; }
+.btn-sm {
+  width: 24px; height: 24px; border: 1px solid #444; border-radius: 4px;
+  background: #222; color: #fff; cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-sm:hover { background: #333; }
+.proc-n { font-size: 13px; font-weight: 700; min-width: 16px; text-align: center; color: #e33; }
+
+/* ── KPI strip ── */
+.kpi-strip {
+  display: flex; gap: 10px;
+  padding: 8px 16px;
+  background: #161616;
+  border-bottom: 1px solid #2a2a2a;
+  flex-wrap: wrap;
+}
+.kpi {
+  flex: 1; min-width: 110px;
+  background: #1e1e1e; border: 1px solid #2e2e2e; border-radius: 6px;
+  padding: 7px 10px;
+}
+.kpi-l { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 3px; }
+.kpi-v { font-size: 18px; font-weight: 700; color: #fff; line-height: 1; }
+.kpi-v small { font-size: 10px; font-weight: 400; color: #666; margin-left: 2px; }
+.kpi.g .kpi-v { color: #2ecc71; }
+.kpi.r .kpi-v { color: #e33; }
+.kpi.b .kpi-v { color: #5ab; }
+.kpi.y .kpi-v { color: #f90; }
+.eff-bar { height: 3px; background: #2a2a2a; border-radius: 2px; margin-top: 5px; }
+.eff-fill { height: 100%; background: #2ecc71; border-radius: 2px; transition: width .4s; }
+
+/* ── Main canvas ── */
+.canvas {
+  flex: 1;
+  overflow: auto;
+  padding: 20px 24px;
+  position: relative;
+}
+
+/* SVG overlay for arrows */
+.vsm-wrapper {
+  position: relative;
+  display: inline-block;
+  min-width: 100%;
+}
+#arrow-svg {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ── Top row: Fornecedor | PCP | Cliente ── */
+.top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0;
+  position: relative;
+}
+
+/* Entity boxes */
+.entity-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 110px;
+}
+.entity-side.right { align-items: flex-end; }
+
+.factory-box {
+  border: 2px solid #fff;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: #fff;
+  background: transparent;
+  text-align: center;
+  min-width: 80px;
+  position: relative;
+}
+/* factory roof notches */
+.factory-box::before {
+  content: '';
+  position: absolute;
+  top: -10px; left: 0; right: 0;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, transparent, transparent 12px, #fff 12px, #fff 14px);
+}
+
+.produto-box {
+  border: 2px solid #fff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: transparent;
+  width: 80px;
+}
+.produto-lines { margin-top: 3px; }
+.produto-lines div {
+  height: 1px; background: #fff; margin-top: 3px;
+}
+
+.truck-icon { font-size: 28px; margin-top: 4px; }
+.truck-arrow {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; color: #888;
+}
+.truck-arrow .arr-down {
+  width: 2px; height: 30px; background: #888;
+  position: relative;
+}
+.truck-arrow .arr-down::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; left: -5px;
+  border: 6px solid transparent;
+  border-top-color: #888;
+}
+
+.client-square {
+  width: 60px; height: 50px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  background: transparent;
+}
+
+/* PCP center */
+.pcp-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  padding-top: 14px;
+}
+.pcp-box {
+  border: 3px solid #fff;
+  border-radius: 6px;
+  padding: 10px 28px;
+  text-align: center;
+  background: transparent;
+}
+.pcp-box .pcp-main { font-size: 22px; font-weight: 900; color: #fff; line-height: 1.1; }
+
+/* Horizontal pedidos arrows */
+.pedidos-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -6px;
+  position: relative;
+  padding: 0 12px;
+}
+.pedidos-label { font-size: 10px; color: #ccc; font-style: italic; }
+.pedidos-arrow-left, .pedidos-arrow-right {
+  flex: 1;
+  height: 2px;
+  background: #e33;
+  position: relative;
+  margin: 0 6px;
+}
+.pedidos-arrow-left::before {
+  content: '';
+  position: absolute;
+  left: -1px; top: -5px;
+  border: 6px solid transparent;
+  border-right-color: #e33;
+}
+.pedidos-arrow-right::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: -5px;
+  border: 6px solid transparent;
+  border-left-color: #e33;
+}
+
+/* ── Process row ── */
+.proc-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  margin-top: 60px;
+  position: relative;
+  overflow-x: visible;
+  padding-left: 4px;
+}
+
+/* Process block = triangle + proc card side by side */
+.proc-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+/* Triangle I */
+.tri-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.tri {
+  width: 0; height: 0;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-bottom: 26px solid #e33;
+  position: relative;
+  cursor: pointer;
+}
+.tri-label {
+  position: absolute;
+  bottom: -22px;
+  left: -5px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #fff;
+  width: 10px;
+  text-align: center;
+}
+.stock-input-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+}
+.stock-inp {
+  width: 46px; font-size: 10px; padding: 2px 3px;
+  border: 1px solid #444; border-radius: 3px;
+  background: #1a1a1a; color: #f90; text-align: center;
+}
+.stock-inp:focus { outline: 1px solid #f90; }
+.stock-unit { font-size: 9px; color: #666; }
+
+/* Process push arrow horizontal */
+.push-h-arrow {
+  display: flex;
+  align-items: center;
+  padding-top: 32px;
+  flex-shrink: 0;
+  width: 28px;
+}
+.push-h-line {
+  flex: 1;
+  height: 2px;
+  background: #666;
+  position: relative;
+}
+.push-h-line::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: -5px;
+  border: 6px solid transparent;
+  border-left-color: #666;
+}
+
+/* Proc card */
+.proc-card {
+  width: 120px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.proc-card-top {
+  background: #fff;
+  padding: 4px 6px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.proc-name-inp {
+  font-size: 10px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: #111;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  width: 100%;
+  outline: none;
+}
+.proc-name-inp:focus { background: #f0f0f0; border-radius: 2px; }
+.proc-card-body {
+  background: #fff;
+  padding: 4px 6px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+/* Operator icon — gear/circle like in image */
+.op-icon {
+  width: 44px; height: 44px;
+  border: 3px solid #222;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  margin: 4px auto;
+}
+.op-icon::before {
+  content: '';
+  width: 18px; height: 18px;
+  border: 3px solid #222;
+  border-radius: 50%;
+  position: absolute;
+}
+/* gear teeth */
+.op-icon::after {
+  content: '';
+  position: absolute;
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  box-shadow:
+    0 -26px 0 -20px #222,
+    0  26px 0 -20px #222,
+    26px 0  0 -20px #222,
+   -26px 0  0 -20px #222,
+    18px -18px 0 -20px #222,
+   -18px -18px 0 -20px #222,
+    18px  18px 0 -20px #222,
+   -18px  18px 0 -20px #222;
+}
+.proc-fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+}
+.pf label { font-size: 9px; color: #555; flex-shrink: 0; }
+.pf input {
+  width: 44px; font-size: 9px; padding: 1px 3px;
+  border: 1px solid #ccc; border-radius: 3px;
+  background: #f8f8f8; color: #111; text-align: right;
+}
+.pf input:focus { outline: 1px solid #e33; }
+
+/* ── INFO boxes ── */
+.info-row {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 10px;
+}
+.info-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+.info-spacer { width: 32px; flex-shrink: 0; } /* aligns with tri+arrow */
+.info-card {
+  width: 120px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.info-card-top {
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 2px 6px;
+  font-size: 9px; font-weight: 700; color: #111;
+  text-transform: uppercase; letter-spacing: .06em;
+  text-align: center;
+}
+.info-lines { padding: 3px 6px; }
+.info-lines div { height: 1px; background: #ccc; margin-top: 4px; }
+.info-inp {
+  width: 100%; font-size: 9px; border: none;
+  background: transparent; color: #333; resize: none;
+  outline: none; font-family: inherit; padding: 2px 4px;
+  min-height: 32px;
+}
+
+/* ── Timeline / ladder ── */
+.timeline-section {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+.timeline-inner {
+  position: relative;
+}
+.timeline-row1 {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.tl-wait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.tl-wait-line {
+  height: 14px;
+  border-left: 2px solid #888;
+  border-right: 2px solid #888;
+  border-top: 2px solid #888;
+  position: relative;
+}
+.tl-wait-val {
+  font-size: 9px;
+  color: #e33;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.tl-h-line {
+  height: 2px;
+  background: #888;
+  flex-shrink: 0;
+}
+.tl-proc-seg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.tl-proc-line {
+  height: 14px;
+  border-left: 2px solid #e33;
+  border-right: 2px solid #e33;
+  border-top: 2px solid #e33;
+}
+.tl-proc-val {
+  font-size: 9px; color: #e33; font-weight: 600;
+  margin-top: 2px; white-space: nowrap;
+}
+
+/* "PROGRAMA" label on push arrows */
+.programa-tag {
+  background: #e33;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <span class="toolbar-title">VSM</span>
+  <span class="t-label">Processos:</span>
+  <button class="btn-sm" onclick="changeProcs(-1)">−</button>
+  <span class="proc-n" id="proc-n">5</span>
+  <button class="btn-sm" onclick="changeProcs(1)">+</button>
+  <span class="t-label" style="margin-left:8px">Demanda:</span>
+  <input class="t-input" type="number" id="demand" value="200" min="1" oninput="recalc()">
+  <span class="t-label">pç/dia</span>
+  <span class="t-label" style="margin-left:8px">Disponível:</span>
+  <input class="t-input" type="number" id="avail" value="480" min="1" oninput="recalc()">
+  <span class="t-label">min/dia</span>
+</div>
+
+<!-- KPI strip -->
+<div class="kpi-strip">
+  <div class="kpi b"><div class="kpi-l">Takt Time</div><div class="kpi-v" id="kpi-takt">—<small>min/pç</small></div></div>
+  <div class="kpi r"><div class="kpi-l">Lead Time</div><div class="kpi-v" id="kpi-lt">—<small>min</small></div></div>
+  <div class="kpi y"><div class="kpi-l">Tempo de Processo</div><div class="kpi-v" id="kpi-tc">—<small>min</small></div></div>
+  <div class="kpi g"><div class="kpi-l">Eficiência do Fluxo</div><div class="kpi-v" id="kpi-eff">—<small>%</small></div><div class="eff-bar"><div class="eff-fill" id="eff-fill" style="width:0%"></div></div></div>
+</div>
+
+<!-- Canvas -->
+<div class="canvas">
+<div class="vsm-wrapper" id="vsm-wrapper">
+
+  <!-- SVG arrows layer (PCP → processes) -->
+  <svg id="arrow-svg" width="0" height="0"></svg>
+
+  <!-- TOP ROW -->
+  <div class="top-row" id="top-row">
+
+    <!-- Left: Fornecedor -->
+    <div class="entity-side">
+      <div style="margin-top:14px">
+        <div class="factory-box">FORNECEDOR</div>
+      </div>
+      <div class="produto-box">
+        PRODUTO
+        <div class="produto-lines">
+          <div></div><div></div><div></div>
+        </div>
+      </div>
+      <div class="truck-icon">🚚</div>
+      <div class="truck-arrow">
+        <div class="arr-down"></div>
+      </div>
+    </div>
+
+    <!-- Center: PCP / MRP -->
+    <div class="pcp-center" id="pcp-center">
+      <div style="display:flex;align-items:center;width:100%;justify-content:space-between;padding:0 10px;gap:8px">
+        <!-- PCP→Fornecedor: arrow points LEFT -->
+        <span class="pedidos-label">pedidos</span>
+        <div style="flex:1;height:2px;background:#e33;position:relative;">
+          <div style="position:absolute;left:-1px;top:-5px;border:6px solid transparent;border-right-color:#e33;"></div>
+        </div>
+        <div class="pcp-box" id="pcp-box">
+          <div class="pcp-main">PCP<br>MRP</div>
+        </div>
+        <!-- Cliente→PCP: arrow points LEFT (toward PCP) -->
+        <div style="flex:1;height:2px;background:#e33;position:relative;">
+          <div style="position:absolute;left:-1px;top:-5px;border:6px solid transparent;border-right-color:#e33;"></div>
+        </div>
+        <span class="pedidos-label">pedidos</span>
+      </div>
+    </div>
+
+    <!-- Right: Cliente -->
+    <div class="entity-side right">
+      <div style="margin-top:14px">
+        <div class="factory-box">CLIENTE</div>
+      </div>
+      <div class="client-square"></div>
+      <div class="truck-icon" style="margin-top:4px">🚚</div>
+      <div class="truck-arrow">
+        <div class="arr-down" style="background:#888;height:24px"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PROCESS ROW -->
+  <div class="proc-row" id="proc-row"></div>
+
+  <!-- INFO ROW -->
+  <div class="info-row" id="info-row"></div>
+
+  <!-- TIMELINE -->
+  <div class="timeline-section" id="timeline-section"></div>
+
+</div><!-- vsm-wrapper -->
+</div><!-- canvas -->
+
+<script>
+let N = 5;
+let state = { procs: [], stocks: [] };
+
+function initState(n) {
+  let op = state.procs.slice(), os = state.stocks.slice();
+  state.procs = [];
+  for (let i = 0; i < n; i++) {
+    state.procs.push(op[i] || { name: 'Processo ' + (i+1), tc: 1.0, ts: 0, ops: 1, info: '' });
+  }
+  state.stocks = [];
+  for (let i = 0; i <= n; i++) {
+    state.stocks.push(os[i] !== undefined ? os[i] : (i===0||i===n ? 0 : 100));
+  }
+}
+
+function saveState() {
+  for (let i = 0; i < state.procs.length; i++) {
+    let g = (id) => document.getElementById(id);
+    if (g('pn-'+i))  state.procs[i].name = g('pn-'+i).value;
+    if (g('tc-'+i))  state.procs[i].tc   = parseFloat(g('tc-'+i).value)||0;
+    if (g('ts-'+i))  state.procs[i].ts   = parseFloat(g('ts-'+i).value)||0;
+    if (g('ops-'+i)) state.procs[i].ops  = parseInt(g('ops-'+i).value)||1;
+    if (g('inf-'+i)) state.procs[i].info = g('inf-'+i).value;
+  }
+  for (let i = 0; i <= state.stocks.length-1; i++) {
+    let el = document.getElementById('stk-'+i);
+    if (el) state.stocks[i] = parseFloat(el.value)||0;
+  }
+}
+
+function changeProcs(d) {
+  saveState();
+  N = Math.max(1, Math.min(8, N+d));
+  document.getElementById('proc-n').textContent = N;
+  initState(N);
+  render();
+  recalc();
+  setTimeout(drawArrows, 50);
+}
+
+function getN(id) { return parseFloat(document.getElementById(id)?.value)||0; }
+
+function recalc() {
+  let demand = getN('demand'), avail = getN('avail');
+  let takt = demand > 0 ? avail/demand : 0;
+  let totalTC = 0, totalWait = 0;
+  for (let i = 0; i < N; i++) {
+    totalTC += getN('tc-'+i);
+    totalWait += getN('stk-'+i) * (takt||1);
+  }
+  totalWait += getN('stk-'+N) * (takt||1);
+  let lt = totalTC + totalWait;
+  let eff = lt > 0 ? totalTC/lt*100 : 0;
+
+  document.getElementById('kpi-takt').innerHTML = takt.toFixed(1)+'<small>min/pç</small>';
+  document.getElementById('kpi-lt').innerHTML   = Math.round(lt)+'<small>min</small>';
+  document.getElementById('kpi-tc').innerHTML   = totalTC.toFixed(1)+'<small>min</small>';
+  document.getElementById('kpi-eff').innerHTML  = eff.toFixed(0)+'<small>%</small>';
+  document.getElementById('eff-fill').style.width = Math.min(eff,100)+'%';
+  renderTimeline();
+}
+
+function render() {
+  renderProcRow();
+  renderInfoRow();
+  renderTimeline();
+}
+
+function renderProcRow() {
+  let row = document.getElementById('proc-row');
+  let html = '';
+
+  for (let i = 0; i < N; i++) {
+    let p = state.procs[i];
+    let s = state.stocks[i] !== undefined ? state.stocks[i] : 0;
+
+    html += `<div class="proc-block">`;
+
+    // Triangle + stock
+    html += `<div class="tri-wrap">
+      <div class="tri"><span class="tri-label">I</span></div>
+      <div class="stock-input-wrap">
+        <input class="stock-inp" type="number" id="stk-${i}" value="${s}" min="0" step="10"
+          oninput="state.stocks[${i}]=parseFloat(this.value)||0;recalc()" title="Estoque em peças">
+        <span class="stock-unit">pç</span>
+      </div>
+    </div>`;
+
+    // Push arrow between blocks (not before first)
+    if (i > 0) {
+      html = html; // arrow is part of previous block spacing
+    }
+
+    // Process card
+    html += `<div class="proc-card" id="proc-card-${i}">
+      <div class="proc-card-top">
+        <input class="proc-name-inp" type="text" id="pn-${i}" value="${p.name}"
+          oninput="state.procs[${i}].name=this.value">
+      </div>
+      <div class="proc-card-body">
+        <div class="op-icon"></div>
+        <div class="proc-fields">
+          <div class="pf"><label>TC min</label><input type="number" id="tc-${i}" value="${p.tc}" min="0" step="0.1" oninput="state.procs[${i}].tc=parseFloat(this.value)||0;recalc()"></div>
+          <div class="pf"><label>Setup</label><input type="number" id="ts-${i}" value="${p.ts}" min="0" step="0.5" oninput="state.procs[${i}].ts=parseFloat(this.value)||0"></div>
+          <div class="pf"><label>Ops</label><input type="number" id="ops-${i}" value="${p.ops}" min="1" max="9" step="1" oninput="state.procs[${i}].ops=parseInt(this.value)||1"></div>
+        </div>
+      </div>
+    </div>`;
+
+    html += `</div>`; // proc-block
+
+    // Horizontal push arrow between processes
+    if (i < N-1) {
+      html += `<div class="push-h-arrow"><div class="push-h-line"></div></div>`;
+    }
+  }
+
+  // Last triangle
+  let sLast = state.stocks[N] !== undefined ? state.stocks[N] : 0;
+  html += `<div class="proc-block">
+    <div class="tri-wrap">
+      <div class="tri"><span class="tri-label">I</span></div>
+      <div class="stock-input-wrap">
+        <input class="stock-inp" type="number" id="stk-${N}" value="${sLast}" min="0" step="10"
+          oninput="state.stocks[${N}]=parseFloat(this.value)||0;recalc()" title="Estoque final">
+        <span class="stock-unit">pç</span>
+      </div>
+    </div>
+  </div>`;
+
+  row.innerHTML = html;
+}
+
+function renderInfoRow() {
+  let row = document.getElementById('info-row');
+  let html = '';
+
+  for (let i = 0; i < N; i++) {
+    let p = state.procs[i];
+
+    // spacer for triangle width alignment
+    if (i === 0) {
+      html += `<div class="info-spacer" style="width:36px"></div>`;
+    }
+
+    html += `<div class="info-card">
+      <div class="info-card-top">INFO</div>
+      <div class="info-lines">
+        <textarea class="info-inp" id="inf-${i}" rows="3" placeholder="dados do processo..."
+          oninput="state.procs[${i}].info=this.value">${p.info||''}</textarea>
+      </div>
+    </div>`;
+
+    // gap between info cards (aligns with push arrow + next triangle)
+    if (i < N-1) {
+      html += `<div style="width:60px;flex-shrink:0"></div>`;
+    }
+  }
+
+  row.innerHTML = html;
+}
+
+function renderTimeline() {
+  let sec = document.getElementById('timeline-section');
+  let demand = getN('demand'), avail = getN('avail');
+  let takt = demand > 0 ? avail/demand : 1;
+
+  let stocks = [], tcs = [];
+  for (let i = 0; i <= N; i++) stocks.push(getN('stk-'+i) * takt);
+  for (let i = 0; i < N; i++) tcs.push(getN('tc-'+i));
+
+  let maxV = Math.max(...stocks, ...tcs, 1);
+  let MAX_H = 28;
+
+  let html = `<div class="timeline-inner">`;
+
+  // Row 1: grey ladder (wait times)
+  html += `<div style="display:flex;align-items:flex-end;gap:0">`;
+  for (let i = 0; i <= N; i++) {
+    let h = Math.max(10, Math.round(stocks[i]/maxV*MAX_H));
+    let w = i===0 ? 36 : (i===N ? 36 : 36); // tri width
+    html += `<div class="tl-wait" style="width:${w}px">
+      <div class="tl-wait-line" style="width:${w-8}px;height:${h}px"></div>
+      <div class="tl-wait-val">${stocks[i]>0?Math.round(stocks[i])+'m':'—'}</div>
+    </div>`;
+    if (i < N) {
+      // proc segment width = card width (120) + push arrow (28) = 148
+      let ph = Math.max(10, Math.round(tcs[i]/maxV*MAX_H));
+      html += `<div class="tl-proc-seg" style="width:148px">
+        <div class="tl-proc-line" style="width:120px;height:${ph}px"></div>
+        <div class="tl-proc-val">${tcs[i].toFixed(1)}m</div>
+      </div>`;
+    }
+  }
+  html += `</div>`;
+
+  // Ladder base lines
+  html += `<div style="display:flex;align-items:center;gap:0;margin-top:4px">`;
+  for (let i = 0; i <= N; i++) {
+    html += `<div style="width:36px;height:2px;background:#888"></div>`;
+    if (i < N) {
+      html += `<div style="flex:1;min-width:148px;height:2px;background:#e33"></div>`;
+    }
+  }
+  html += `</div>`;
+
+  // xxx labels
+  html += `<div style="display:flex;align-items:center;gap:0;margin-top:3px">`;
+  for (let i = 0; i <= N; i++) {
+    html += `<div style="width:36px;font-size:9px;color:#888;text-align:center">${i<N||i===N?'xxx':''}</div>`;
+    if (i < N) {
+      html += `<div style="flex:1;min-width:148px;font-size:9px;color:#e33;text-align:center">xxx</div>`;
+    }
+  }
+  html += `</div>`;
+
+  html += `</div>`;
+  sec.innerHTML = html;
+}
+
+function drawArrows() {
+  const svg = document.getElementById('arrow-svg');
+  const wrapper = document.getElementById('vsm-wrapper');
+  const pcpBox = document.getElementById('pcp-box');
+  if (!svg || !wrapper || !pcpBox) return;
+
+  const wRect = wrapper.getBoundingClientRect();
+  const pcpRect = pcpBox.getBoundingClientRect();
+
+  const pcpCX = pcpRect.left - wRect.left + pcpRect.width / 2;
+  const pcpBottom = pcpRect.bottom - wRect.top;
+
+  const cards = [];
+  for (let i = 0; i < N; i++) {
+    const card = document.getElementById('proc-card-' + i);
+    if (card) cards.push(card);
+  }
+
+  let paths = '';
+
+  cards.forEach(function(card) {
+    const cRect = card.getBoundingClientRect();
+    const cx = cRect.left - wRect.left + cRect.width / 2;
+    const cy = cRect.top - wRect.top;
+
+    function lerp(a, b, t) { return a + (b-a)*t; }
+
+    // Linha: PCP -> processo
+    // Zigue no meio: ponto A (42%), pico deslocado perpendicularmente, ponto B (58%)
+    const t1 = 0.42, t2 = 0.58;
+    const ax = lerp(pcpCX, cx, t1), ay = lerp(pcpBottom, cy, t1);
+    const bx = lerp(pcpCX, cx, t2), by = lerp(pcpBottom, cy, t2);
+
+    // Vetor perpendicular à linha (normalizado), deslocado 14px para o lado
+    const dx = cx - pcpCX, dy = cy - pcpBottom;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const nx = -dy/len, ny = dx/len; // perpendicular
+    const offset = 14;
+    const pkx = lerp(pcpCX, cx, 0.50) + nx*offset;
+    const pky = lerp(pcpBottom, cy, 0.50) + ny*offset;
+
+    paths += '<polyline points="'
+           + pcpCX+','+pcpBottom+' '
+           + ax+','+ay+' '
+           + pkx+','+pky+' '
+           + bx+','+by+' '
+           + cx+','+cy
+           + '" fill="none" stroke="#e33" stroke-width="2"'
+           + ' stroke-linejoin="miter" marker-end="url(#arrowhead)"/>';
+  });
+
+  svg.innerHTML = '<defs>'
+    + '<marker id="arrowhead" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">'
+    + '<polygon points="0 0, 8 3, 0 6" fill="#e33"/>'
+    + '</marker></defs>'
+    + paths;
+
+  svg.setAttribute('width', wRect.width);
+  svg.setAttribute('height', wRect.height);
+}
+
+// Init
+initState(N);
+render();
+recalc();
+setTimeout(drawArrows, 100);
+window.addEventListener('resize', () => setTimeout(drawArrows, 50));
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+.report-pdf {
+  width: 960px;
+  padding: 32px 36px;
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #111;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2px solid #111;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.report-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.report-date {
+  font-size: 11px;
+  color: #888;
+}
+
+.report-kpis {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.report-kpi {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.report-kpi-l {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+}
+
+.report-kpi-v {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.report-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.report-table th {
+  text-align: left;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  font-weight: 600;
+  color: #475569;
+  font-size: 11px;
+}
+
+.report-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.report-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.report-yama-svg {
+  display: block;
+  margin-top: 8px;
+  overflow: visible;
+}

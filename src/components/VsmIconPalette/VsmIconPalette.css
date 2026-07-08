@@ -1,0 +1,39 @@
+.vsm-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.vsm-palette-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 6px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  background: var(--white);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.vsm-palette-btn:hover {
+  border-color: var(--blue);
+  background: var(--gray-100);
+}
+
+.vsm-palette-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+}
+
+.vsm-palette-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #555;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+}

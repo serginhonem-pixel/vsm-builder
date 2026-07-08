@@ -1,0 +1,897 @@
+/* ── Canvas scroll container ── */
+.vsm-canvas {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  overflow: auto;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  min-height: 0;
+  display: flex;
+  /* NÃO usar justify-content: center aqui — quando overflow, clipa o lado esquerdo.
+     Em vez disso, margin: auto no wrapper centraliza quando cabe e scroll funciona quando não cabe. */
+  align-items: center;
+}
+
+/* ── Inner wrapper (SVG positioned relative to this) ── */
+.vsm-wrapper {
+  position: relative;
+  flex-shrink: 0;   /* não deixa o flex encolher o wrapper */
+  margin: auto;     /* centraliza nos dois eixos quando há espaço; sem clipping quando overflow */
+}
+
+/* ── SVG overlay for PCP arrows ── */
+.vsm-arrow-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOP ROW
+   ═══════════════════════════════════════════════════════ */
+.vsm-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+/* Entity sides (Supplier / Customer) */
+.vsm-entity-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.vsm-entity-right {
+  align-items: flex-end;
+}
+
+/* ── Factory building SVG icon ── */
+.vsm-factory-svg {
+  display: block;
+  color: var(--black);
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.vsm-factory-svg.vsm-selected {
+  color: var(--selected);
+  filter: drop-shadow(0 0 3px var(--selected));
+}
+
+.vsm-pcp-box.vsm-selected {
+  outline: 2px solid var(--selected);
+  outline-offset: 2px;
+}
+
+/* ── Supplier supply/product card ── */
+.vsm-supply-card {
+  border: 1.5px solid var(--gray-400);
+  border-radius: 4px;
+  padding: 5px 8px 7px;
+  background: var(--gray-50, #fafafa);
+  min-width: 90px;
+  width: 112px;
+  box-sizing: border-box;
+}
+
+.vsm-supply-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--black);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.vsm-supply-lines { margin-top: 6px; }
+.vsm-supply-lines div {
+  height: 1px;
+  background: var(--gray-300);
+  margin-top: 5px;
+}
+
+/* ── Customer demand card ── */
+.vsm-demand-card {
+  border: 1.5px solid var(--gray-400);
+  border-radius: 4px;
+  padding: 6px 8px;
+  background: var(--gray-50, #fafafa);
+  width: 112px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Person (customer) icon */
+.vsm-demand-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 1px;
+}
+
+.vsm-person-head {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--black);
+  border-radius: 50%;
+}
+
+.vsm-person-body {
+  width: 18px;
+  height: 16px;
+  border: 2px solid var(--black);
+  border-radius: 8px 8px 0 0;
+  border-bottom: none;
+}
+
+.vsm-demand-data {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vsm-demand-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--black);
+  gap: 4px;
+}
+
+.vsm-demand-row span:first-child {
+  color: var(--gray-600);
+}
+
+.vsm-demand-row span:last-child {
+  font-weight: 700;
+}
+
+/* ── Transport: truck + arrow ── */
+.vsm-entity-transport {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.vsm-transport-right {
+  align-items: flex-end;
+}
+
+.vsm-truck-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+/* vsm-arr-down e vsm-arr-up removidos — substituídos por setas SVG dinâmicas */
+
+/* PCP / MRP center */
+.vsm-pcp-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  padding-top: 4px;
+}
+
+
+.vsm-pedidos-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.vsm-pedidos-label {
+  font-size: 12px;
+  color: var(--gray-600);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.vsm-pedidos-line {
+  flex: 1;
+  height: 2px;
+  background: #e33;
+  position: relative;
+}
+
+.vsm-pedidos-svg {
+  flex: 1;
+  height: 20px;
+  overflow: visible;
+}
+
+.vsm-arrow-left::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: -5px;
+  border: 6px solid transparent;
+  border-right-color: #e33;
+}
+
+.vsm-arrow-right::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -5px;
+  border: 6px solid transparent;
+  border-left-color: #e33;
+}
+
+.vsm-pcp-box {
+  border: 3px solid var(--black);
+  border-radius: 6px;
+  padding: 10px 28px;
+  text-align: center;
+  background: var(--white);
+  cursor: pointer;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.vsm-pcp-main {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--black);
+  line-height: 1.1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CENTER WRAP — CSS Grid com placement explícito por row
+   Rows: 1=proc  2=info  3-5=SVG staircase (spans all)
+   ═══════════════════════════════════════════════════════ */
+.vsm-center-wrap {
+  display: grid;
+  /* grid-template-columns definido inline via JS */
+  grid-template-rows: auto auto auto;
+  align-items: end;
+  margin: 20px auto 32px;
+  width: fit-content;
+}
+
+/* Row 1: proc-cards ficam alinhados ao topo da linha */
+.vsm-proc-card {
+  align-self: start;
+}
+
+/* Row 1: WIP tri-wraps ficam centralizados verticalmente */
+.vsm-tri-wrap {
+  align-self: center;
+}
+
+/* Row 1: container push-arrow + WIP no gap entre processos */
+.vsm-gap-proc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* Dentro do gap, o push-arrow não precisa do padding-top do layout antigo */
+.vsm-gap-proc .vsm-push-arrow {
+  padding-top: 0;
+}
+
+/* Row 2: info-cards alinham ao topo com espaço acima */
+.vsm-info-card {
+  align-self: start;
+  margin-top: 12px;
+}
+
+/* Row 4: barras ficam alinhadas à base da célula (estoque alto, proc baixo) */
+.vsm-tl-wait,
+.vsm-tl-proc {
+  align-self: end;
+}
+
+/* Row 5: linha horizontal */
+.vsm-tl-line {
+  align-self: stretch;
+}
+
+/* Row 6: labels abaixo da linha */
+.vsm-tl-val {
+  margin-top: 3px;
+  align-self: start;
+}
+
+.vsm-proc-block {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Inventory triangle */
+.vsm-tri-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 18px;
+  flex-shrink: 0;
+  width: 68px;
+  box-sizing: border-box;
+  cursor: pointer;
+  gap: 4px;
+}
+
+.vsm-tri-wrap.vsm-selected .vsm-tri {
+  filter: drop-shadow(0 0 3px var(--selected));
+}
+
+.vsm-tri {
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 30px solid #e33;
+  position: relative;
+}
+
+.vsm-tri-i {
+  position: absolute;
+  bottom: -24px;
+  left: -5px;
+  width: 10px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--white);
+  pointer-events: none;
+}
+
+.vsm-stock-inp {
+  width: 58px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 3px;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  background: var(--gray-100);
+  color: var(--black);
+  text-align: center;
+  margin-top: 4px;
+  min-width: 0;
+}
+
+.vsm-stock-inp:focus { outline: 1px solid var(--blue); }
+
+.vsm-stock-unit {
+  font-size: 10px;
+  color: var(--gray-600);
+  display: block;
+  text-align: center;
+  margin-top: 1px;
+}
+
+/* Process card */
+.vsm-proc-card {
+  width: 160px;
+  box-sizing: border-box;
+  border: 2px solid var(--black);
+  border-radius: 8px;
+  background: var(--white);
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vsm-proc-card.vsm-selected {
+  border-color: var(--selected);
+  box-shadow: 0 0 0 2px var(--selected);
+}
+
+.vsm-proc-card.vsm-bottleneck {
+  border-color: #e33;
+  box-shadow: 0 0 0 2px #e3333344;
+}
+
+.vsm-proc-card.vsm-bottleneck .vsm-proc-name {
+  background: #fff0f0;
+  color: #e33;
+}
+
+.vsm-bottleneck-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: #e33;
+  background: #fff0f0;
+  border: 1px solid #e33;
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.vsm-proc-name {
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 5px 6px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.vsm-proc-body {
+  padding: 6px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Gear icon */
+.vsm-gear {
+  width: 42px;
+  height: 42px;
+  border: 3px solid #222;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 2px auto;
+}
+
+.vsm-gear-inner {
+  width: 14px;
+  height: 14px;
+  border: 2.5px solid #222;
+  border-radius: 50%;
+}
+
+.vsm-gear::after {
+  content: '';
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+     0 -24px 0 -19px #222,
+     0  24px 0 -19px #222,
+     24px 0  0 -19px #222,
+    -24px 0  0 -19px #222,
+     17px -17px 0 -19px #222,
+    -17px -17px 0 -19px #222,
+     17px  17px 0 -19px #222,
+    -17px  17px 0 -19px #222;
+}
+
+/* Process fields */
+.vsm-proc-fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vsm-pf {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.vsm-pf span:first-child { color: var(--gray-600); font-size: 11px; }
+.vsm-pf span:last-child  { font-weight: 700; color: var(--black); }
+
+.vsm-pacemaker-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: #7c3aed;
+  background: #f5f3ff;
+  border: 1px solid #7c3aed;
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.vsm-tc-efetivo {
+  font-size: 10px;
+  font-weight: 600;
+  color: #d97706;
+}
+
+.vsm-wip-material {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  max-width: 68px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vsm-ops-val { display: inline-flex; align-items: baseline; gap: 1px; }
+.vsm-ops-need { font-size: 10px; font-weight: 600; }
+.vsm-ops-low  { color: #e33; }
+.vsm-ops-high { color: #d97706; }
+.vsm-ops-ok   { color: #15803d; }
+
+.vsm-oee-val { font-weight: 700; }
+.vsm-oee-low { color: #e33; }
+.vsm-oee-mid { color: #d97706; }
+.vsm-oee-ok  { color: #15803d; }
+
+/* Push arrow */
+.vsm-push-arrow {
+  display: flex;
+  align-items: center;
+  padding-top: 30px;
+  flex-shrink: 0;
+  width: 32px;
+  box-sizing: border-box;
+}
+
+.vsm-push-line {
+  flex: 1;
+  height: 2px;
+  background: var(--gray-600);
+  position: relative;
+}
+
+.vsm-push-line::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -5px;
+  border: 6px solid transparent;
+  border-left-color: var(--gray-600);
+}
+
+/* Pull: seta aponta para a esquerda */
+.vsm-push-arrow.pull .vsm-push-line::after {
+  right: auto;
+  left: -1px;
+  border-left-color: transparent;
+  border-right-color: var(--gray-600);
+}
+
+/* ── Supermercado node ── */
+.vsm-supermercado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* ── FIFO lane node ── */
+.vsm-fifo-lane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* ── Kanban node ── */
+.vsm-kanban-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+}
+
+/* connector svg inside gap */
+.vsm-connector-svg {
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   INFO ROW
+   ═══════════════════════════════════════════════════════ */
+.vsm-info-row {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+
+.vsm-info-spacer {
+  width: 54px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.vsm-info-block {
+  display: flex;
+  align-items: flex-start;
+}
+
+.vsm-info-card {
+  width: 160px;
+  box-sizing: border-box;
+  border: 2px solid var(--black);
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.vsm-info-card.vsm-selected {
+  border-color: var(--selected);
+}
+
+.vsm-info-card-top {
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--black);
+  text-align: center;
+}
+
+.vsm-info-lines {
+  padding: 4px 6px 6px;
+}
+
+.vsm-info-lines div {
+  height: 1px;
+  background: var(--gray-300);
+  margin-top: 5px;
+}
+
+.vsm-info-prog {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 4px 6px;
+}
+
+.vsm-prog-type {
+  font-size: 9px;
+  font-weight: 700;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.vsm-prog-freq {
+  font-size: 9px;
+  font-weight: 600;
+  background: #f0fdf4;
+  color: #15803d;
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.vsm-prog-sis {
+  font-size: 9px;
+  color: #555;
+  background: #f3f4f6;
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.vsm-pcp-sub {
+  font-size: 9px;
+  font-weight: 600;
+  color: #555;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.vsm-supply-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 2px;
+  font-size: 9px;
+  color: #555;
+}
+
+.vsm-supply-detail span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vsm-info-text {
+  padding: 4px 7px 6px;
+  font-size: 10px;
+  color: var(--black);
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.vsm-info-gap {
+  width: 86px; /* tri(54) + push(32) */
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TIMELINE
+   ═══════════════════════════════════════════════════════ */
+.vsm-timeline {
+  margin-top: 16px;
+  padding-bottom: 12px;
+}
+
+.vsm-tl-bars {
+  display: flex;
+  align-items: flex-end;
+}
+
+.vsm-tl-unit {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+  width: 216px; /* tri(54) + card(130) + push(32) */
+}
+
+.vsm-tl-last {
+  width: 54px;
+}
+
+.vsm-tl-wait,
+.vsm-tl-proc {
+  align-self: end;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-right: 2px solid;
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.vsm-tl-wait {
+  width: 68px;
+  border-color: var(--gray-600);
+}
+
+.vsm-tl-proc {
+  width: 160px;
+  border-color: #e33;
+}
+
+.vsm-tl-wait-mid {
+  width: 100px; /* push(32) + wip(68) */
+}
+
+.vsm-tl-last .vsm-tl-wait {
+  width: 54px;
+}
+
+.vsm-tl-val {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vsm-tl-grey { color: var(--gray-600); }
+.vsm-tl-red  { color: #e33; }
+
+.vsm-tl-line {
+  height: 2px;
+  background: var(--gray-400);
+}
+
+/* ── Summary LT / VA ── */
+.vsm-tl-summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding-left: 14px;
+  align-self: stretch;
+}
+
+.vsm-tl-lt {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--black);
+  white-space: nowrap;
+}
+
+.vsm-tl-va {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e33;
+  white-space: nowrap;
+}
+
+.vsm-tl-labels {
+  display: flex;
+  margin-top: 3px;
+}
+
+.vsm-tl-lbl-wait {
+  display: inline-flex;
+  justify-content: center;
+  width: 54px;
+  flex-shrink: 0;
+}
+
+.vsm-tl-lbl-proc {
+  display: inline-flex;
+  justify-content: center;
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.vsm-tl-lbl-wait-mid {
+  width: 86px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ESTADO FUTURO
+   ═══════════════════════════════════════════════════════ */
+.vsm-canvas--futuro {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}
+
+.vsm-futuro-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 96px;
+  font-weight: 900;
+  color: rgba(14, 116, 163, 0.07);
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 0;
+}
+
+/* Wrapper relativo para proc card + kaizen burst */
+.vsm-proc-wrap {
+  position: relative;
+  align-self: start;
+}
+
+.vsm-kaizen-auto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 8px;
+  overflow: hidden;
+}

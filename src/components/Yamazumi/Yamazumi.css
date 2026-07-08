@@ -1,0 +1,68 @@
+.yamazumi-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yamazumi-modal {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  padding: 20px 24px 16px;
+  min-width: 420px;
+  max-width: 90vw;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.yamazumi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.yamazumi-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: 0.02em;
+}
+
+.yamazumi-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--gray-600);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.yamazumi-close:hover { background: var(--gray-100); }
+
+.yamazumi-takt-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #555;
+}
+
+.yamazumi-warn {
+  color: #e33;
+  font-weight: 600;
+}
+
+.yamazumi-chart-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.yamazumi-svg {
+  display: block;
+}

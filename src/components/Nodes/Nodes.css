@@ -1,0 +1,319 @@
+/* ── Base wrapper ── */
+.node-card {
+  position: absolute;
+  width: 210px;
+  min-height: 120px;
+  user-select: none;
+}
+
+.node-card:hover {
+  transform: translateY(-1px);
+  transition: transform 0.1s ease;
+}
+
+.node-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: 1px solid var(--gray-300);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  opacity: 0;
+  font-size: 13px;
+  line-height: 1;
+  z-index: 10;
+  background: var(--white);
+  color: var(--black);
+  transition: opacity 0.15s ease;
+}
+
+.node-card.selected .node-delete { opacity: 1; }
+
+.node-inner {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.node-card:active .node-inner { cursor: grabbing; }
+
+/* ═══════════════════════════════════════════════════════
+   PROCESS NODE — white card, gear icon
+   ═══════════════════════════════════════════════════════ */
+.process-node {
+  width: 100%;
+  min-height: 120px;
+  background: var(--white);
+  border: 2px solid var(--gray-300);
+  border-radius: 8px;
+  overflow: hidden;
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  border-left: 5px solid var(--blue);
+}
+
+.node-card.selected .process-node { border-color: var(--selected); }
+
+.proc-header {
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 5px 28px 5px 8px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--black);
+}
+
+.proc-body {
+  padding: 6px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+
+/* ── Gear / operator icon ── */
+.gear-wrap {
+  width: 38px;
+  height: 38px;
+  border: 3px solid #222;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 2px auto;
+  flex-shrink: 0;
+}
+
+.gear-inner {
+  width: 13px;
+  height: 13px;
+  border: 2.5px solid #222;
+  border-radius: 50%;
+}
+
+.gear-wrap::after {
+  content: '';
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+     0 -23px 0 -18px #222,
+     0  23px 0 -18px #222,
+     23px 0  0 -18px #222,
+    -23px 0  0 -18px #222,
+     16px -16px 0 -18px #222,
+    -16px -16px 0 -18px #222,
+     16px  16px 0 -18px #222,
+    -16px  16px 0 -18px #222;
+}
+
+.proc-fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.pf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  padding: 0 2px;
+}
+
+.pf-label { color: var(--gray-600); font-size: 9px; }
+.pf-val   { font-weight: 700; color: var(--black); }
+
+/* ═══════════════════════════════════════════════════════
+   EXTERNAL NODE — factory box (black border + notch)
+   ═══════════════════════════════════════════════════════ */
+.external-node {
+  width: 100%;
+  min-height: 120px;
+  background: var(--white);
+  border: 2px solid var(--black);
+  border-radius: 4px;
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  overflow: visible;
+}
+
+/* Factory roof notch */
+.external-node::before {
+  content: '';
+  position: absolute;
+  top: -13px;
+  left: -2px;
+  right: -2px;
+  height: 13px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 10px,
+    var(--black) 10px,
+    var(--black) 12px
+  );
+}
+
+.node-card.selected .external-node {
+  border-color: var(--selected);
+  box-shadow: 0 0 0 1px var(--selected);
+}
+
+.node-card.selected .external-node::before {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 10px,
+    var(--selected) 10px,
+    var(--selected) 12px
+  );
+}
+
+.external-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--black);
+  text-align: center;
+  padding: 0 12px;
+}
+
+.external-name {
+  font-size: 10px;
+  color: var(--gray-600);
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════
+   WIP NODE — inventory triangle "I"
+   ═══════════════════════════════════════════════════════ */
+.wip-node {
+  width: 100%;
+  min-height: 120px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.wip-triangle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wip-tri {
+  width: 0;
+  height: 0;
+  border-left: 26px solid transparent;
+  border-right: 26px solid transparent;
+  border-bottom: 44px solid #e33;
+  position: relative;
+}
+
+.node-card.selected .wip-tri { border-bottom-color: var(--selected); }
+
+.wip-tri-label {
+  position: absolute;
+  bottom: -36px;
+  left: -5px;
+  width: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--white);
+  pointer-events: none;
+}
+
+.wip-qty {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--black);
+  margin-top: 4px;
+}
+
+.wip-unit {
+  font-size: 10px;
+  color: var(--gray-600);
+  font-weight: 400;
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOCATION NODE
+   ═══════════════════════════════════════════════════════ */
+.location-node {
+  width: 100%;
+  min-height: 120px;
+  background: var(--white);
+  border: 2px solid var(--gray-300);
+  border-radius: 8px;
+  border-left: 5px solid var(--gray-600);
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.node-card.selected .location-node { border-color: var(--selected); }
+
+.loc-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--black);
+  padding-right: 20px;
+}
+
+.loc-type-badge {
+  display: inline-block;
+  font-size: 9px;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--gray-200);
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: fit-content;
+  background: var(--gray-100);
+}
+
+.loc-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.loc-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+
+.loc-row-label { color: var(--gray-600); }
+.loc-row-val   { color: var(--black); font-weight: 600; }
