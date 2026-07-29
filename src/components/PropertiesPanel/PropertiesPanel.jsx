@@ -122,14 +122,35 @@ function PcpProps() {
   );
 }
 
+function AcaoList({ procId }) {
+  const proc        = useVsmStore((s) => s.processes.find((p) => p.id === procId));
+  const addAcao     = useVsmStore((s) => s.addAcao);
+  const updateAcao  = useVsmStore((s) => s.updateAcao);
+  const removeAcao  = useVsmStore((s) => s.removeAcao);
+  if (!proc) return null;
+  return (
+    <div className="properties-field">
+      <label>Plano de Ação</label>
+      {(proc.acoes || []).map((a) => (
+        <div key={a.id} className="acao-card">
+          <div className="acao-row">
+            <input placeholder="O quê" value={a.oQue} onChange={(e) => updateAcao(procId, a.id, { oQue: e.target.value })} />
+            <button className="shift-remove-btn" onClick={() => removeAcao(procId, a.id)}>✕</button>
+          </div>
+          <input placeholder="Quem" value={a.quem} onChange={(e) => updateAcao(procId, a.id, { quem: e.target.value })} />
+          <input type="date" value={a.quando} onChange={(e) => updateAcao(procId, a.id, { quando: e.target.value })} />
+        </div>
+      ))}
+      <button type="button" className="palette-button" onClick={() => addAcao(procId)}>+ Adicionar ação</button>
+    </div>
+  );
+}
+
 function ProcessProps({ id }) {
   const proc        = useVsmStore((s) => s.processes.find((p) => p.id === id));
   const update      = useVsmStore((s) => s.updateProcess);
   const removeProcess = useVsmStore((s) => s.removeProcess);
   const setPacemaker  = useVsmStore((s) => s.setPacemaker);
-  const addAcao       = useVsmStore((s) => s.addAcao);
-  const updateAcao    = useVsmStore((s) => s.updateAcao);
-  const removeAcao    = useVsmStore((s) => s.removeAcao);
   const activeState = useVsmStore((s) => s.activeState);
   if (!proc) return null;
   const upd = (patch) => update(id, patch);
@@ -280,22 +301,7 @@ function ProcessProps({ id }) {
             ✦ Marcar Kaizen
           </button>
 
-          {proc.kaizen && (
-            <div className="properties-field">
-              <label>Plano de Ação</label>
-              {(proc.acoes || []).map((a) => (
-                <div key={a.id} className="acao-card">
-                  <div className="acao-row">
-                    <input placeholder="O quê" value={a.oQue} onChange={(e) => updateAcao(id, a.id, { oQue: e.target.value })} />
-                    <button className="shift-remove-btn" onClick={() => removeAcao(id, a.id)}>✕</button>
-                  </div>
-                  <input placeholder="Quem" value={a.quem} onChange={(e) => updateAcao(id, a.id, { quem: e.target.value })} />
-                  <input type="date" value={a.quando} onChange={(e) => updateAcao(id, a.id, { quando: e.target.value })} />
-                </div>
-              ))}
-              <button type="button" className="palette-button" onClick={() => addAcao(id)}>+ Adicionar ação</button>
-            </div>
-          )}
+          {proc.kaizen && <AcaoList procId={id} />}
         </>
       )}
       <button
@@ -385,6 +391,7 @@ const EL_LABELS = {
 
 function ElementProps({ id }) {
   const el            = useVsmStore((s) => s.elements.find((e) => e.id === id));
+  const processes     = useVsmStore((s) => s.processes);
   const updateElement = useVsmStore((s) => s.updateElement);
   const removeElement = useVsmStore((s) => s.removeElement);
   if (!el) return null;
@@ -395,6 +402,19 @@ function ElementProps({ id }) {
         <label>Tipo</label>
         <div style={{ fontSize: 13, color: '#555', padding: '6px 0' }}>{EL_LABELS[el.type] || el.type}</div>
       </div>
+      {el.type === 'kaizen' && (
+        <>
+          <div className="properties-field">
+            <label>Processo vinculado</label>
+            <select value={el.processId || ''} onChange={(e) => updateElement(id, { processId: e.target.value || null })}
+              style={{ padding: '9px 10px', borderRadius: 10, border: '1px solid var(--gray-200)', background: 'var(--gray-100)', fontSize: 13 }}>
+              <option value="">— Nenhum —</option>
+              {processes.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          {el.processId && <AcaoList procId={el.processId} />}
+        </>
+      )}
       <button className="props-delete-btn" onClick={() => removeElement(id)}>
         Remover elemento
       </button>

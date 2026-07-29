@@ -1,4 +1,5 @@
 import { useVsmStore } from '../../store/useVsmStore.js';
+import { computeKpis } from '../../utils/kpi.js';
 import './KpiStrip.css';
 
 export default function KpiStrip() {
@@ -9,24 +10,7 @@ export default function KpiStrip() {
   const setDemand    = useVsmStore((s) => s.setDemand);
   const setAvailable = useVsmStore((s) => s.setAvailable);
 
-  const takt = demand > 0 ? available / demand : 0;
-
-  // Converte CT para minutos conforme unidade
-  const ctToMin = (p) => {
-    const v = parseFloat(String(p.ct).replace(',', '.')) || 0;
-    if (p.ctUnit === 'Seg') return v / 60;
-    if (p.ctUnit === 'H')   return v * 60;
-    return v; // Min (padrão)
-  };
-
-  const totalTC = processes.reduce((sum, p) => sum + ctToMin(p), 0);
-
-  const totalWait = wips.reduce((sum, w) => {
-    return sum + (parseFloat(w.qty) || 0) * (takt || 1);
-  }, 0);
-
-  const lt  = totalTC + totalWait;
-  const eff = lt > 0 ? (totalTC / lt) * 100 : 0;
+  const { takt, totalTC, lt, eff } = computeKpis({ processes, wips, demand, available });
 
   return (
     <div className="kpi-strip">

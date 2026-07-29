@@ -54,8 +54,23 @@ export const useVsmStore = create((set, get) => ({
 
   setSelected:    (id) => set({ selectedId: id }),
 
+  getSnapshot: (key) => {
+    const s = get();
+    if (key === s.activeState) {
+      return {
+        supplier: s.supplier, customer: s.customer, pcp: s.pcp,
+        processes: s.processes, wips: s.wips, elements: s.elements,
+        demand: s.demand, available: s.available,
+      };
+    }
+    return s.savedStates[key];
+  },
+
   addElement: (type) => set((s) => ({
-    elements: [...s.elements, { id: 'el-' + uid(), type, x: 200, y: 150, label: '' }],
+    elements: [...s.elements, {
+      id: 'el-' + uid(), type, x: 200, y: 150, label: '',
+      ...(type === 'kaizen' ? { processId: null } : {}),
+    }],
   })),
   updateElement: (id, patch) => set((s) => ({
     elements: s.elements.map((e) => (e.id === id ? { ...e, ...patch } : e)),

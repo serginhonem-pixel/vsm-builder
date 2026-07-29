@@ -47,7 +47,7 @@ function useInfoFlows(wrapperRef, pcpRef, procRefs, processes, zoom) {
 }
 
 
-export default function VsmLayout() {
+export default function VsmLayout({ data, idPrefix = '', readOnly = false, isFuturo: isFuturoProp }) {
   const canvasRef  = useRef(null);
   const wrapperRef = useRef(null);
   const pcpRef     = useRef(null);
@@ -60,18 +60,26 @@ export default function VsmLayout() {
   const [wrapWidth, setWrapWidth] = useState(900);
   const [matFlows, setMatFlows] = useState([]);
 
-  const supplier  = useVsmStore((s) => s.supplier);
-  const customer  = useVsmStore((s) => s.customer);
-  const pcp       = useVsmStore((s) => s.pcp);
-  const processes = useVsmStore((s) => s.processes);
-  const wips      = useVsmStore((s) => s.wips);
-  const demand    = useVsmStore((s) => s.demand);
-  const available = useVsmStore((s) => s.available);
+  const liveSupplier  = useVsmStore((s) => s.supplier);
+  const liveCustomer  = useVsmStore((s) => s.customer);
+  const livePcp       = useVsmStore((s) => s.pcp);
+  const liveProcesses = useVsmStore((s) => s.processes);
+  const liveWips      = useVsmStore((s) => s.wips);
+  const liveDemand    = useVsmStore((s) => s.demand);
+  const liveAvailable = useVsmStore((s) => s.available);
   const selectedId = useVsmStore((s) => s.selectedId);
   const setSelected = useVsmStore((s) => s.setSelected);
   const updateWip   = useVsmStore((s) => s.updateWip);
   const activeState = useVsmStore((s) => s.activeState);
-  const isFuturo    = activeState === 'futuro';
+
+  const supplier  = data ? data.supplier  : liveSupplier;
+  const customer  = data ? data.customer  : liveCustomer;
+  const pcp       = data ? data.pcp       : livePcp;
+  const processes = data ? data.processes : liveProcesses;
+  const wips      = data ? data.wips      : liveWips;
+  const demand    = data ? data.demand    : liveDemand;
+  const available = data ? data.available : liveAvailable;
+  const isFuturo  = isFuturoProp !== undefined ? isFuturoProp : activeState === 'futuro';
 
   // Auto-zoom: cabe na largura E altura disponíveis, sem overflow; centraliza via margin:auto no wrapper
   useEffect(() => {
@@ -135,22 +143,26 @@ export default function VsmLayout() {
 
   const sel = (id) => (e) => { e.stopPropagation(); setSelected(id); };
 
-  // Arrowhead marker shared id
-  const AH_H = 'vsm-ah-h';
+  // Arrowhead marker ids — prefixados por instância pra não colidir quando dois VsmLayout renderizam juntos (comparativo)
+  const AH_H  = idPrefix + 'vsm-ah-h';
+  const AH    = idPrefix + 'vsm-ah';
+  const AH_MAT = idPrefix + 'vsm-ah-mat';
   const isSel = (id) => selectedId === id;
 
   return (
-    <div className={`vsm-canvas${isFuturo ? ' vsm-canvas--futuro' : ''}`} ref={canvasRef} onClick={() => setSelected(null)}>
+    <div className={`vsm-canvas${isFuturo ? ' vsm-canvas--futuro' : ''}`} ref={canvasRef}
+      onClick={readOnly ? undefined : () => setSelected(null)}
+      style={readOnly ? { pointerEvents: 'none' } : undefined}>
       <div className="vsm-wrapper" ref={wrapperRef} style={{ zoom, width: wrapWidth }}>
         {isFuturo && <div className="vsm-futuro-watermark" aria-hidden="true">FUTURO</div>}
 
         {/* ── SVG overlay: PCP info flows + material flows ── */}
         <svg className="vsm-arrow-svg" aria-hidden="true">
           <defs>
-            <marker id="vsm-ah" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+            <marker id={AH} markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
               <polygon points="0 0, 6 2.5, 0 5" fill="var(--black)" />
             </marker>
-            <marker id="vsm-ah-mat" markerWidth="5" markerHeight="4" refX="4" refY="2" orient="auto">
+            <marker id={AH_MAT} markerWidth="5" markerHeight="4" refX="4" refY="2" orient="auto">
               <polygon points="0 0, 5 2, 0 4" fill="var(--black)" />
             </marker>
           </defs>
@@ -158,7 +170,7 @@ export default function VsmLayout() {
           {matFlows.map(f => (
             <polyline key={f.id} points={f.pts}
               fill="none" stroke="var(--black)" strokeWidth="1.5" strokeLinejoin="round"
-              markerEnd="url(#vsm-ah-mat)" />
+              markerEnd={`url(#${AH_MAT})`} />
           ))}
           {infoFlows.map((flow) => {
             const { x1, y1, x2, y2, type, progLabel } = flow;
@@ -168,7 +180,7 @@ export default function VsmLayout() {
               return (
                 <g key={flow.id}>
                   <line x1={x1} y1={y1} x2={x2} y2={y2}
-                    stroke="var(--black)" strokeWidth="1" markerEnd="url(#vsm-ah)"/>
+                    stroke="var(--black)" strokeWidth="1" markerEnd={`url(#${AH})`}/>
                   {progLabel && <InfoFlowLabel x={mx} y={my} text={progLabel}/>}
                 </g>
               );
@@ -184,7 +196,7 @@ export default function VsmLayout() {
             return (
               <g key={flow.id}>
                 <polyline fill="none" stroke="var(--black)" strokeWidth="1"
-                  markerEnd="url(#vsm-ah)"
+                  markerEnd={`url(#${AH})`}
                   points={`${x1},${y1} ${k1x},${k1y} ${k2x},${k2y} ${x2},${y2}`}/>
                 {progLabel && <InfoFlowLabel x={mx} y={my} text={progLabel}/>}
               </g>
@@ -262,9 +274,10 @@ export default function VsmLayout() {
           processes={processes} wips={wips} procRefs={procRefs}
           isSel={isSel} sel={sel} updateWip={updateWip}
           wip0Ref={wip0Ref} wipFinalRef={wipFinalRef}
-          isFuturo={isFuturo}
+          isFuturo={isFuturo} demand={demand} available={available}
+          idPrefix={idPrefix}
         />
-        <VsmElements zoom={zoom} />
+        <VsmElements zoom={zoom} elements={data ? data.elements : undefined} readOnly={readOnly} idPrefix={idPrefix} />
       </div>{/* end wrapper */}
     </div>
   );
@@ -356,7 +369,7 @@ function HorizArrow({ type, dir, markerId, reversed, label }) {
   );
 }
 
-function WipNode({ wip, isSel, sel, updateWip, style, nodeRef, showArrow, tourId }) {
+function WipNode({ wip, isSel, sel, updateWip, style, nodeRef, showArrow, tourId, idPrefix = '' }) {
   const type = wip.flowType || 'push';
   const selected = isSel(`wip-${wip.id}`);
   const tourAttr = tourId ? { 'data-tour': tourId } : {};
@@ -376,10 +389,10 @@ function WipNode({ wip, isSel, sel, updateWip, style, nodeRef, showArrow, tourId
         {mat}
         {showArrow && (
           <svg className="vsm-connector-svg" viewBox="0 0 36 24" width="36" height="24">
-            <defs><marker id={`ah-pull-${wip.id}`} markerWidth="6" markerHeight="5" refX="1" refY="2.5" orient="auto">
+            <defs><marker id={`${idPrefix}ah-pull-${wip.id}`} markerWidth="6" markerHeight="5" refX="1" refY="2.5" orient="auto">
               <polygon points="6 0,0 2.5,6 5" fill="#2563eb"/>
             </marker></defs>
-            <line x1="34" y1="12" x2="4" y2="12" stroke="#2563eb" strokeWidth="2" markerEnd={`url(#ah-pull-${wip.id})`}/>
+            <line x1="34" y1="12" x2="4" y2="12" stroke="#2563eb" strokeWidth="2" markerEnd={`url(#${idPrefix}ah-pull-${wip.id})`}/>
           </svg>
         )}
         <div className="vsm-supermercado">
@@ -403,12 +416,12 @@ function WipNode({ wip, isSel, sel, updateWip, style, nodeRef, showArrow, tourId
         {mat}
         <div className="vsm-fifo-lane">
           <svg viewBox="0 0 80 30" width="80" height="30">
-            <defs><marker id={`ah-fifo-${wip.id}`} markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+            <defs><marker id={`${idPrefix}ah-fifo-${wip.id}`} markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
               <polygon points="0 0,6 2.5,0 5" fill="#2563eb"/>
             </marker></defs>
             <rect x="1" y="1" width="78" height="28" rx="4" fill="#e8f4ff" stroke="#2563eb" strokeWidth="2"/>
             <text x="28" y="14" fontFamily="monospace" fontWeight="800" fontSize="10" fill="#2563eb">FIFO</text>
-            <line x1="10" y1="22" x2="66" y2="22" stroke="#2563eb" strokeWidth="1.5" markerEnd={`url(#ah-fifo-${wip.id})`}/>
+            <line x1="10" y1="22" x2="66" y2="22" stroke="#2563eb" strokeWidth="1.5" markerEnd={`url(#${idPrefix}ah-fifo-${wip.id})`}/>
           </svg>
           <div style={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>{qty}</div>
         </div>
@@ -423,10 +436,10 @@ function WipNode({ wip, isSel, sel, updateWip, style, nodeRef, showArrow, tourId
         {mat}
         {showArrow && (
           <svg className="vsm-connector-svg" viewBox="0 0 36 24" width="36" height="24">
-            <defs><marker id={`ah-kb-${wip.id}`} markerWidth="6" markerHeight="5" refX="1" refY="2.5" orient="auto">
+            <defs><marker id={`${idPrefix}ah-kb-${wip.id}`} markerWidth="6" markerHeight="5" refX="1" refY="2.5" orient="auto">
               <polygon points="6 0,0 2.5,6 5" fill="#d97706"/>
             </marker></defs>
-            <line x1="34" y1="12" x2="4" y2="12" stroke="#d97706" strokeWidth="2" strokeDasharray="5,3" markerEnd={`url(#ah-kb-${wip.id})`}/>
+            <line x1="34" y1="12" x2="4" y2="12" stroke="#d97706" strokeWidth="2" strokeDasharray="5,3" markerEnd={`url(#${idPrefix}ah-kb-${wip.id})`}/>
           </svg>
         )}
         <div className="vsm-kanban-node">
@@ -473,9 +486,7 @@ function KaizenBurst() {
   );
 }
 
-function CenterGrid({ processes, wips, procRefs, isSel, sel, updateWip, wip0Ref, wipFinalRef, isFuturo }) {
-  const demand    = useVsmStore((s) => s.demand);
-  const available = useVsmStore((s) => s.available);
+function CenterGrid({ processes, wips, procRefs, isSel, sel, updateWip, wip0Ref, wipFinalRef, isFuturo, demand, available, idPrefix = '' }) {
   const takt  = demand > 0 ? available / demand : 1;
 
   const ctToMin = (p) => {
@@ -545,6 +556,7 @@ function CenterGrid({ processes, wips, procRefs, isSel, sel, updateWip, wip0Ref,
         <WipNode
           wip={wips[0]} isSel={isSel} sel={sel} updateWip={updateWip}
           style={g(1, 1)} nodeRef={wip0Ref} showArrow={false} tourId="wip-first"
+          idPrefix={idPrefix}
         />
       )}
 
@@ -593,6 +605,7 @@ function CenterGrid({ processes, wips, procRefs, isSel, sel, updateWip, wip0Ref,
               <WipNode
                 wip={nextWip} isSel={isSel} sel={sel} updateWip={updateWip}
                 style={g(1, gapCol(i))} showArrow
+                idPrefix={idPrefix}
               />
             )}
           </React.Fragment>
@@ -604,6 +617,7 @@ function CenterGrid({ processes, wips, procRefs, isSel, sel, updateWip, wip0Ref,
         <WipNode
           wip={wips[processes.length]} isSel={isSel} sel={sel} updateWip={updateWip}
           style={g(1, finalWipCol)} nodeRef={wipFinalRef} showArrow={false}
+          idPrefix={idPrefix}
         />
       )}
 

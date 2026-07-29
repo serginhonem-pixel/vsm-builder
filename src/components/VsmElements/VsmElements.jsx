@@ -19,14 +19,14 @@ const ICONS = {
       <line x1="24" y1="35" x2="34" y2="50" stroke="#333" strokeWidth="2"/>
     </svg>
   ),
-  fifo: ({ size = 56 }) => (
+  fifo: ({ size = 56, idPrefix = '' }) => (
     <svg width={size} height={34} viewBox="0 0 56 34">
       <rect x="1" y="1" width="54" height="32" rx="4" fill="#e8f4ff" stroke="#2563eb" strokeWidth="2"/>
       <text x="28" y="15" textAnchor="middle" fontFamily="monospace" fontWeight="800" fontSize="10" fill="#2563eb">FIFO</text>
       <line x1="8" y1="24" x2="44" y2="24" stroke="#2563eb" strokeWidth="1.5"
-        markerEnd="url(#fifo-arrow)"/>
+        markerEnd={`url(#${idPrefix}fifo-arrow)`}/>
       <defs>
-        <marker id="fifo-arrow" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+        <marker id={`${idPrefix}fifo-arrow`} markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
           <polygon points="0 0,6 2.5,0 5" fill="#2563eb"/>
         </marker>
       </defs>
@@ -80,7 +80,7 @@ const LABELS = {
   heijunka:     'Heijunka',
 };
 
-function VsmElement({ el, zoom }) {
+function VsmElement({ el, zoom, readOnly, idPrefix }) {
   const updateElement = useVsmStore((s) => s.updateElement);
   const setSelected   = useVsmStore((s) => s.setSelected);
   const selectedId    = useVsmStore((s) => s.selectedId);
@@ -89,6 +89,7 @@ function VsmElement({ el, zoom }) {
   const Icon = ICONS[el.type];
 
   const onMouseDown = (e) => {
+    if (readOnly) return;
     e.stopPropagation();
     setSelected(el.id);
     dragging.current = true;
@@ -109,7 +110,7 @@ function VsmElement({ el, zoom }) {
     window.addEventListener('mouseup', onUp);
   };
 
-  const isSelected = selectedId === el.id;
+  const isSelected = !readOnly && selectedId === el.id;
 
   return (
     <div
@@ -117,19 +118,20 @@ function VsmElement({ el, zoom }) {
       style={{ left: el.x, top: el.y }}
       onMouseDown={onMouseDown}
     >
-      {Icon && <Icon />}
+      {Icon && <Icon idPrefix={idPrefix} />}
       <span className="vsm-el-label">{el.label || LABELS[el.type]}</span>
     </div>
   );
 }
 
-export default function VsmElements({ zoom }) {
-  const elements = useVsmStore((s) => s.elements);
+export default function VsmElements({ zoom, elements: elementsProp, readOnly = false, idPrefix = '' }) {
+  const liveElements = useVsmStore((s) => s.elements);
+  const elements = elementsProp !== undefined ? elementsProp : liveElements;
   if (!elements.length) return null;
   return (
     <div className="vsm-elements-overlay">
       {elements.map((el) => (
-        <VsmElement key={el.id} el={el} zoom={zoom} />
+        <VsmElement key={el.id} el={el} zoom={zoom} readOnly={readOnly} idPrefix={idPrefix} />
       ))}
     </div>
   );

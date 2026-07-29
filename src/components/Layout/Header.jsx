@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useVsmStore } from '../../store/useVsmStore.js';
 import Yamazumi from '../Yamazumi/Yamazumi.jsx';
 import ReportPdf from '../ReportPdf/ReportPdf.jsx';
+import ComparisonView from '../Comparison/ComparisonView.jsx';
+import { ctToMin } from '../../utils/kpi.js';
 import './Layout.css';
 
 function KpiChips() {
@@ -12,12 +14,6 @@ function KpiChips() {
   const lote      = useVsmStore((s) => s.lote);
 
   const takt = demand > 0 ? available / demand : 0;
-  const ctToMin = (p) => {
-    const v = parseFloat(String(p.ct).replace(',', '.')) || 0;
-    if (p.ctUnit === 'Seg') return v / 60;
-    if (p.ctUnit === 'H')   return v * 60;
-    return v;
-  };
   const totalTC   = processes.reduce((sum, p) => sum + ctToMin(p), 0);
   const totalWait = wips.reduce((sum, w) => {
     const qty = parseFloat(w.qty) || 0;
@@ -105,6 +101,7 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
   const [loadName, setLoadName] = useState('');
   const [saved, setSaved]       = useState([]);
   const [showYamazumi, setShowYamazumi] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
   const reportRef  = useRef(null);
   const fileImport = useRef(null);
 
@@ -178,6 +175,9 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
             Futuro
           </button>
         </div>
+        <button type="button" className="hbtn" onClick={() => setShowComparison(true)}>
+          Comparar Atual x Futuro
+        </button>
 
         <div className="header-sep" />
 
@@ -200,6 +200,7 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
 
 
       {showYamazumi && <Yamazumi onClose={() => setShowYamazumi(false)} />}
+      {showComparison && <ComparisonView onClose={() => setShowComparison(false)} />}
 
       {/* Relatório oculto capturado pelo html2canvas */}
       <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>
