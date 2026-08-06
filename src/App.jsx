@@ -6,8 +6,9 @@ import PropertiesPanel from './components/PropertiesPanel/PropertiesPanel.jsx';
 import ShingoDiagram from './components/ShingoDiagram/ShingoDiagram.jsx';
 import GuidedTour from './components/GuidedTour/GuidedTour.jsx';
 import { useVsmStore } from './store/useVsmStore.js';
+import Landing from './pages/Landing.jsx';
 
-export default function App() {
+function EditorApp() {
   const [view, setView]         = useState('vsm');
   const [drawerOpen, setDrawer] = useState(false);
   const [tourRunning, setTour]  = useState(false);
@@ -66,4 +67,9 @@ export default function App() {
       )}
     </div>
   );
+}
+
+export default function App() {
+  const isLanding = window.location.pathname === '/' || window.location.pathname === '';
+  return isLanding ? <Landing /> : <EditorApp />;
 }
