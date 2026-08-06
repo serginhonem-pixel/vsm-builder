@@ -100,48 +100,21 @@
   width: 100%;
 }
 
-.vsm-mockup-svg {
-  width: 100%;
-  height: auto;
-  max-width: 720px;
-  display: block;
+.landing-screenshot-frame {
+  max-width: 760px;
   margin: 0 auto;
+  padding: 10px;
   background: var(--landing-dark-2);
   border: 1px solid #3a4149;
-  border-radius: 8px;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
 }
 
-.mockup-box {
-  fill: var(--white);
-  stroke: var(--black);
-  stroke-width: 2;
-}
-.mockup-box-process {
-  fill: #fff7ed;
-  stroke: var(--landing-accent);
-}
-.mockup-box-title {
-  font-size: 15px;
-  font-weight: 700;
-  fill: var(--black);
-}
-.mockup-box-sub {
-  font-size: 11px;
-  fill: var(--gray-600);
-}
-.mockup-arrow {
-  fill: none;
-  stroke: var(--gray-300);
-  stroke-width: 2;
-}
-.mockup-stock {
-  fill: none;
-  stroke: var(--gray-300);
-  stroke-width: 2;
-}
-.mockup-stock-label {
-  font-size: 10px;
-  fill: var(--gray-300);
+.landing-screenshot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
 }
 
 /* Features */

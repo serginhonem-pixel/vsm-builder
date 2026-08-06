@@ -1,4 +1,4 @@
-import VsmMockup from './VsmMockup.jsx';
+import vsmScreenshot from '../assets/vsm-screenshot.png';
 import './Landing.css';
 
 const FEATURES = [
@@ -44,7 +44,13 @@ function Hero() {
         <a className="landing-btn landing-btn-primary" href="/app">Começar agora</a>
       </div>
       <div className="landing-hero-mockup">
-        <VsmMockup />
+        <div className="landing-screenshot-frame">
+          <img
+            className="landing-screenshot"
+            src={vsmScreenshot}
+            alt="Tela do VSM Builder mostrando um mapa de fluxo de valor com fornecedor, PCP/MRP, processos e cliente"
+          />
+        </div>
       </div>
     </section>
   );
