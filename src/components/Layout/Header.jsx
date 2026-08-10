@@ -3,7 +3,9 @@ import { useVsmStore } from '../../store/useVsmStore.js';
 import Yamazumi from '../Yamazumi/Yamazumi.jsx';
 import ReportPdf from '../ReportPdf/ReportPdf.jsx';
 import ComparisonView from '../Comparison/ComparisonView.jsx';
+import LicenseModal from '../License/LicenseModal.jsx';
 import { ctToMin } from '../../utils/kpi.js';
+import { isLicensed } from '../../utils/license.js';
 import './Layout.css';
 
 function KpiChips() {
@@ -84,53 +86,33 @@ async function exportPdf(name, reportEl) {
   pdf.save(`${name || 'vsm-flow'}.pdf`);
 }
 
-function exportJson(name, store) {
-  const data = {
-    supplier: store.supplier, customer: store.customer, pcp: store.pcp,
-    processes: store.processes, wips: store.wips,
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `${name || 'vsm-flow'}.json`; a.click();
-  URL.revokeObjectURL(url);
-}
-
 export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOpen, onToggleDrawer, onStartTour }) {
   const [name, setName]         = useState('Meu fluxo');
   const [loadName, setLoadName] = useState('');
   const [saved, setSaved]       = useState([]);
   const [showYamazumi, setShowYamazumi] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [licenseReason, setLicenseReason] = useState(null);
   const reportRef  = useRef(null);
-  const fileImport = useRef(null);
 
-  const store          = useVsmStore();
   const saveFlow       = useVsmStore((s) => s.saveFlow);
   const loadFlow       = useVsmStore((s) => s.loadFlow);
   const listFlows      = useVsmStore((s) => s.listFlows);
   const clearCanvas    = useVsmStore((s) => s.clearCanvas);
   const activeState    = useVsmStore((s) => s.activeState);
   const switchToState  = useVsmStore((s) => s.switchToState);
-  const importFromData = useVsmStore((s) => s.importFromData);
-
-  const handleImportFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        importFromData(data);
-        setName(file.name.replace(/\.json$/i, ''));
-      } catch { alert('JSON inválido'); }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
 
   const refresh = () => setSaved(listFlows());
   useEffect(refresh, []);
+
+  const handleSalvar = () => {
+    if (!isLicensed()) {
+      setLicenseReason('Pra manter suas alterações salvas entre sessões, ative sua licença.');
+      return;
+    }
+    saveFlow(name.trim());
+    refresh();
+  };
 
   return (
     <header className="app-header">
@@ -141,11 +123,8 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
 
       <div className="header-row">
         <div data-tour="file-actions" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button type="button" className="hbtn" onClick={clearCanvas}>Novo</button>
-          <button type="button" className="hbtn" onClick={() => { saveFlow(name.trim()); refresh(); }}>Salvar</button>
-          <button type="button" className="hbtn" onClick={() => fileImport.current?.click()}>Importar JSON</button>
-          <input ref={fileImport} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportFile} />
-          <button type="button" className="hbtn" onClick={() => exportJson(name.trim(), store)}>Exportar JSON</button>
+          <button type="button" className="hbtn" onClick={clearCanvas}>Novo fluxo</button>
+          <button type="button" className="hbtn" onClick={handleSalvar}>Salvar</button>
           <button type="button" className="hbtn hbtn-pdf" onClick={() => exportPdf(name.trim(), reportRef.current)}>Exportar PDF</button>
         </div>
         {activeView === 'shingo' ? (
@@ -182,11 +161,11 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
         <div className="header-sep" />
 
         <label className="hlabel">
-          Como
-          <input className="hinput" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome do fluxo" />
+          Nome do fluxo
+          <input className="hinput" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Carrinho, Telha..." />
         </label>
         <label className="hlabel">
-          Carregar
+          Abrir fluxo salvo
           <select className="hinput" value={loadName} onChange={(e) => setLoadName(e.target.value)}>
             <option value="">Selecione</option>
             {saved.map((item) => <option key={item} value={item}>{item}</option>)}
@@ -201,6 +180,13 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
 
       {showYamazumi && <Yamazumi onClose={() => setShowYamazumi(false)} />}
       {showComparison && <ComparisonView onClose={() => setShowComparison(false)} />}
+      {licenseReason && (
+        <LicenseModal
+          reason={licenseReason}
+          onClose={() => setLicenseReason(null)}
+          onActivated={() => setLicenseReason(null)}
+        />
+      )}
 
       {/* Relatório oculto capturado pelo html2canvas */}
       <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }}>

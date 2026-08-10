@@ -41,7 +41,7 @@ const STEPS = [
     placement: 'bottom-start',
     title: 'Ações do fluxo',
     content:
-      'Crie um novo mapa, salve no navegador, importe ou exporte em JSON e gere um relatório completo em PDF com o VSM e os KPIs.',
+      'Clique em "Novo fluxo" pra começar do zero, dê um nome no campo ao lado, salve pra continuar depois e gere um relatório completo em PDF com o VSM e os KPIs.',
   },
   {
     target: '[data-tour="state-toggle"]',

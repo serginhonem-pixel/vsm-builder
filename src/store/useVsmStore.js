@@ -3,10 +3,10 @@ import { create } from 'zustand';
 const uid = () => Math.random().toString(36).slice(2, 7);
 
 const defaultProcesses = [
-  { id: 'p1', name: 'BLANK',      ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
-  { id: 'p2', name: 'ESTAMPADA',  ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
-  { id: 'p3', name: 'RECORTADA',  ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
-  { id: 'p4', name: 'DEBRUADA',   ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
+  { id: 'p1', name: 'PROCESSO 01', ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
+  { id: 'p2', name: 'PROCESSO 02', ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
+  { id: 'p3', name: 'PROCESSO 03', ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
+  { id: 'p4', name: 'PROCESSO 04', ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: 'PI', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '' },
 ];
 
 const defaultWips = [
@@ -18,8 +18,8 @@ const defaultWips = [
 ];
 
 export const useVsmStore = create((set, get) => ({
-  supplier: { name: 'FORNECEDOR', product: 'BOBINA BEG 0,40 SAE 1006 Z50', infoFlow: 'manual', infoFlowDir: 'from-pcp', leadTime: '', freqEntrega: '', tipoPedido: '', codigo: '10644' },
-  customer: { name: 'CLIENTE', product: 'CACAMBA CONSTRUTOR GALVANIZADO', infoFlow: 'manual', infoFlowDir: 'from-pcp', freqPedidos: '', prazoEntrega: '', codigo: '02665' },
+  supplier: { name: 'FORNECEDOR', product: 'MATÉRIA-PRIMA', infoFlow: 'electronic', infoFlowDir: 'from-pcp', leadTime: '', freqEntrega: '', tipoPedido: '', codigo: '10644' },
+  customer: { name: 'CLIENTE', product: 'CACAMBA CONSTRUTOR GALVANIZADO', infoFlow: 'electronic', infoFlowDir: 'to-pcp', freqPedidos: '', prazoEntrega: '', codigo: '02665' },
   pcp:      { name: 'PCP\nMRP', sistema: '', horizonte: '', freqOrdens: '' },
   processes: defaultProcesses,
   wips:      defaultWips,
@@ -122,7 +122,7 @@ export const useVsmStore = create((set, get) => ({
   addProcess: () => set((s) => ({
     processes: [...s.processes, {
       id: 'p-' + uid(),
-      name: 'Processo ' + (s.processes.length + 1),
+      name: 'PROCESSO ' + String(s.processes.length + 1).padStart(2, '0'),
       ct: '30', ctUnit: 'Seg', setup: '0', ops: '1', turnos: '1', uptime: '95%', performance: '100%', quality: '100%', info: '', infoFlow: 'electronic', pushDir: 'push', infoFlowDir: 'from-pcp', progType: '', progFreq: '', progSistema: '',
     }],
     wips: [...s.wips, { id: 'w-' + uid(), qty: '0', unit: 'pç', flowType: 'push', material: '', factor: '1', consumoDiario: '' }],
