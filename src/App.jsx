@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Layout/Header.jsx';
 import Sidebar from './components/Layout/Sidebar.jsx';
 import VsmLayout from './components/VsmLayout/VsmLayout.jsx';
@@ -8,12 +8,26 @@ import GuidedTour from './components/GuidedTour/GuidedTour.jsx';
 import { useVsmStore } from './store/useVsmStore.js';
 import Landing from './pages/Landing.jsx';
 
+const TOUR_SEEN_KEY = 'vsm_tour_seen';
+
 function EditorApp() {
   const [view, setView]         = useState('vsm');
   const [drawerOpen, setDrawer] = useState(false);
   const [tourRunning, setTour]  = useState(false);
   const selectedId  = useVsmStore((s) => s.selectedId);
   const setSelected = useVsmStore((s) => s.setSelected);
+
+  // Primeira visita ao editor: dispara o tour sozinho.
+  useEffect(() => {
+    if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+      setTour(true);
+    }
+  }, []);
+
+  const closeTour = () => {
+    localStorage.setItem(TOUR_SEEN_KEY, '1');
+    setTour(false);
+  };
 
   return (
     <div className="app-shell">
@@ -28,7 +42,7 @@ function EditorApp() {
 
       {tourRunning && (
         <GuidedTour
-          onClose={() => setTour(false)}
+          onClose={closeTour}
           onOpenDrawer={() => setDrawer(true)}
           onCloseDrawer={() => setDrawer(false)}
           onSelectFirstProcess={() => {
