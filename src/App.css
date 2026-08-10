@@ -120,3 +120,47 @@ body {
 
 button, select, input, textarea { font: inherit; }
 button { cursor: pointer; }
+
+/* ── Mobile notice ── */
+.mobile-notice {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: rgba(17, 17, 17, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.mobile-notice-box {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px 22px;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.mobile-notice-box h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.mobile-notice-box p {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #555;
+}
+
+.mobile-notice-btn {
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.mobile-notice-btn:hover { opacity: 0.92; }
