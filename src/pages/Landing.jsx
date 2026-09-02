@@ -173,7 +173,7 @@ function Footer() {
         VSM Builder — um produto
         <a
           className="landing-footer-link"
-          href="https://betinistudio.com"
+          href="https://betinistudio.com.br"
           target="_blank"
           rel="noopener"
         >
