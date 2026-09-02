@@ -88,26 +88,24 @@ function VsmElement({ el, zoom, readOnly, idPrefix }) {
   const startPos      = useRef({ mx: 0, my: 0, ex: 0, ey: 0 });
   const Icon = ICONS[el.type];
 
-  const onMouseDown = (e) => {
+  // Pointer Events: um só caminho pra mouse e toque
+  const onPointerDown = (e) => {
     if (readOnly) return;
     e.stopPropagation();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* pointer sintético */ }
     setSelected(el.id);
     dragging.current = true;
     startPos.current = { mx: e.clientX, my: e.clientY, ex: el.x, ey: el.y };
-
-    const onMove = (ev) => {
-      if (!dragging.current) return;
-      const dx = (ev.clientX - startPos.current.mx) / (zoom || 1);
-      const dy = (ev.clientY - startPos.current.my) / (zoom || 1);
-      updateElement(el.id, { x: startPos.current.ex + dx, y: startPos.current.ey + dy });
-    };
-    const onUp = () => {
-      dragging.current = false;
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
+  };
+  const onPointerMove = (e) => {
+    if (!dragging.current) return;
+    const dx = (e.clientX - startPos.current.mx) / (zoom || 1);
+    const dy = (e.clientY - startPos.current.my) / (zoom || 1);
+    updateElement(el.id, { x: startPos.current.ex + dx, y: startPos.current.ey + dy });
+  };
+  const onPointerUp = (e) => {
+    dragging.current = false;
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ }
   };
 
   const isSelected = !readOnly && selectedId === el.id;
@@ -116,7 +114,10 @@ function VsmElement({ el, zoom, readOnly, idPrefix }) {
     <div
       className={`vsm-el${isSelected ? ' vsm-el--selected' : ''}`}
       style={{ left: el.x, top: el.y }}
-      onMouseDown={onMouseDown}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
     >
       {Icon && <Icon idPrefix={idPrefix} />}
       <span className="vsm-el-label">{el.label || LABELS[el.type]}</span>

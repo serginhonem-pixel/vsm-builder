@@ -151,6 +151,29 @@
   .palette-button { min-height: 40px; }
   .proc-list-item { padding: 10px; }
 
+  /* ── Modais: quase tela cheia no celular ── */
+  .yamazumi-overlay,
+  .cmp-page { padding: 8px; }
+
+  .yamazumi-modal {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    padding: 16px;
+  }
+
+  .cmp-page { align-items: flex-start; }
+  .cmp-modal { padding: 14px 14px 20px; }
+  .cmp-kpi-row {
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    padding: 8px;
+    font-size: 12px;
+  }
+  .cmp-diagram-block { height: 60dvh; }
+
+  .license-modal { padding: 18px; }
+
   /* ── Faixa de aviso (não-bloqueante) ── */
   .mobile-hint {
     display: flex;
