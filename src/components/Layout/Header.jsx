@@ -4,6 +4,7 @@ import Yamazumi from '../Yamazumi/Yamazumi.jsx';
 import ReportPdf from '../ReportPdf/ReportPdf.jsx';
 import ComparisonView from '../Comparison/ComparisonView.jsx';
 import LicenseModal from '../License/LicenseModal.jsx';
+import PwaInstallButton from '../PwaInstall/PwaInstallButton.jsx';
 import { ctToMin } from '../../utils/kpi.js';
 import { isLicensed } from '../../utils/license.js';
 import './Layout.css';
@@ -141,6 +142,7 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
         <button type="button" className="hbtn btn-tour" onClick={onStartTour}>
           ▶ Tour
         </button>
+        <PwaInstallButton />
 
         <div className="header-sep" />
 

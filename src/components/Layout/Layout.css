@@ -124,6 +124,13 @@
 }
 .btn-tour:hover { background: #fef3c7; border-color: #b45309; }
 
+.btn-install {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+.btn-install:hover { background: #fdeae6; border-color: var(--accent-700); }
+
 /* ── Estado Atual / Futuro toggle ── */
 .state-toggle {
   display: flex;
