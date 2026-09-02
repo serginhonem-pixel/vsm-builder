@@ -127,3 +127,14 @@
   flex-shrink: 0;
   cursor: pointer;
 }
+
+.license-close-text {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 13px;
+  padding: 8px;
+  margin-top: 4px;
+  width: 100%;
+  cursor: pointer;
+}

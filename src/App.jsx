@@ -5,6 +5,7 @@ import VsmLayout from './components/VsmLayout/VsmLayout.jsx';
 import PropertiesPanel from './components/PropertiesPanel/PropertiesPanel.jsx';
 import ShingoDiagram from './components/ShingoDiagram/ShingoDiagram.jsx';
 import GuidedTour from './components/GuidedTour/GuidedTour.jsx';
+import MigrationModal from './components/Auth/MigrationModal.jsx';
 import { Analytics } from '@vercel/analytics/react';
 import { useVsmStore } from './store/useVsmStore.js';
 import Landing from './pages/Landing.jsx';
@@ -66,6 +67,8 @@ function EditorApp() {
           <button onClick={dismissMobileNotice} aria-label="Fechar aviso">✕</button>
         </div>
       )}
+
+      <MigrationModal />
 
       {tourRunning && (
         <GuidedTour
