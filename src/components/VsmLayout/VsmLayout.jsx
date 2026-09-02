@@ -56,9 +56,18 @@ export default function VsmLayout({ data, idPrefix = '', readOnly = false, isFut
   const customerTruckRef = useRef(null);
   const wip0Ref    = useRef(null);
   const wipFinalRef = useRef(null);
-  const [zoom, setZoom] = useState(1);
+  const [autoZoom, setAutoZoom] = useState(1);
+  const [userZoom, setUserZoom] = useState(null); // null = segue o auto-zoom
   const [wrapWidth, setWrapWidth] = useState(900);
   const [matFlows, setMatFlows] = useState([]);
+
+  // zoom efetivo: manual quando o usuário mexeu, senão o auto-fit
+  const zoom = userZoom != null ? userZoom : autoZoom;
+
+  const ZOOM_MIN = 0.15, ZOOM_MAX = 4;
+  const clampZoom = (z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+  const nudgeZoom = (factor) => setUserZoom((z) => clampZoom((z != null ? z : autoZoom) * factor));
+  const resetZoom = () => setUserZoom(null);
 
   const liveSupplier  = useVsmStore((s) => s.supplier);
   const liveCustomer  = useVsmStore((s) => s.customer);
@@ -95,13 +104,50 @@ export default function VsmLayout({ data, idPrefix = '', readOnly = false, isFut
       const naturalH = 576;
       const z = Math.min(availW / nW, availH / naturalH, 1.5);
       setWrapWidth(nW);
-      setZoom(Math.max(0.25, z));
+      setAutoZoom(Math.max(0.25, z));
     };
     calcZoom();
     const ro = new ResizeObserver(calcZoom);
     if (canvasRef.current) ro.observe(canvasRef.current);
     return () => ro.disconnect();
   }, [processes.length]);
+
+  // Pinch (2 dedos) e ctrl+scroll para zoom manual. touchmove precisa ser
+  // não-passivo pra permitir preventDefault, por isso addEventListener manual.
+  useEffect(() => {
+    if (readOnly) return;
+    const el = canvasRef.current;
+    if (!el) return;
+    let pinchDist = null;
+    const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+
+    const onTouchStart = (e) => { if (e.touches.length === 2) pinchDist = dist(e.touches); };
+    const onTouchMove = (e) => {
+      if (e.touches.length !== 2 || pinchDist == null) return;
+      e.preventDefault();
+      const d = dist(e.touches);
+      const factor = d / pinchDist;
+      pinchDist = d;
+      setUserZoom((z) => clampZoom((z != null ? z : autoZoom) * factor));
+    };
+    const onTouchEnd = (e) => { if (e.touches.length < 2) pinchDist = null; };
+    const onWheel = (e) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      setUserZoom((z) => clampZoom((z != null ? z : autoZoom) * (e.deltaY < 0 ? 1.08 : 0.925)));
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, [readOnly, autoZoom]);
 
   const infoFlows = useInfoFlows(wrapperRef, pcpRef, procRefs, processes, zoom);
 
@@ -150,6 +196,7 @@ export default function VsmLayout({ data, idPrefix = '', readOnly = false, isFut
   const isSel = (id) => selectedId === id;
 
   return (
+    <div className="vsm-stage">
     <div className={`vsm-canvas${isFuturo ? ' vsm-canvas--futuro' : ''}`} ref={canvasRef}
       onClick={readOnly ? undefined : () => setSelected(null)}
       style={readOnly ? { pointerEvents: 'none' } : undefined}>
@@ -279,6 +326,16 @@ export default function VsmLayout({ data, idPrefix = '', readOnly = false, isFut
         />
         <VsmElements zoom={zoom} elements={data ? data.elements : undefined} readOnly={readOnly} idPrefix={idPrefix} />
       </div>{/* end wrapper */}
+    </div>{/* end canvas */}
+
+      {!readOnly && (
+        <div className="vsm-zoom-ctl">
+          <button type="button" onClick={() => nudgeZoom(1.25)} aria-label="Aproximar">+</button>
+          <button type="button" onClick={resetZoom} aria-label="Ajustar à tela">⤢</button>
+          <button type="button" onClick={() => nudgeZoom(0.8)} aria-label="Afastar">−</button>
+          <span className="vsm-zoom-pct">{Math.round(zoom * 100)}%</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,3 +1,12 @@
+/* ── Stage: wrapper posicionado que segura os controles de zoom ── */
+.vsm-stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+}
+
 /* ── Canvas scroll container ── */
 .vsm-canvas {
   flex: 1;
@@ -13,6 +22,46 @@
   /* NÃO usar justify-content: center aqui — quando overflow, clipa o lado esquerdo.
      Em vez disso, margin: auto no wrapper centraliza quando cabe e scroll funciona quando não cabe. */
   align-items: center;
+  /* pan de 1 dedo rola nativo; pinch é tratado no JS (não deixa o browser dar zoom na página) */
+  touch-action: pan-x pan-y;
+}
+
+/* ── Controles de zoom (canto inferior direito) ── */
+.vsm-zoom-ctl {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.vsm-zoom-ctl button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--gray-300);
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 10px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.vsm-zoom-ctl button:hover { border-color: var(--blue); background: #fff; }
+
+.vsm-zoom-pct {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gray-600);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 2px 6px;
+  border-radius: 6px;
 }
 
 /* ── Inner wrapper (SVG positioned relative to this) ── */
