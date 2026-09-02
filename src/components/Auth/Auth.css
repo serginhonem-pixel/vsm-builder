@@ -1,0 +1,129 @@
+/* AuthMenu + SavePromptBanner — segue tokens de src/App.css */
+
+.auth-signin {
+  white-space: nowrap;
+}
+
+.auth-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.auth-avatar {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.auth-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+}
+
+.auth-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  padding: 12px;
+  min-width: 200px;
+}
+
+.auth-pop-name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.auth-pop-email {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.auth-pop-plan {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.auth-pop-signout {
+  width: 100%;
+  padding: 7px;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+  background: var(--white);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.auth-pop-signout:hover {
+  background: var(--gray-100);
+}
+
+.save-prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  background: #fff4e5;
+  border-bottom: 1px solid #f5d9b0;
+  color: var(--ink-soft);
+}
+
+.save-prompt span {
+  flex: 1;
+}
+
+.save-prompt-cta {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: var(--white);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.save-prompt-x {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 14px;
+  padding: 4px 6px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
