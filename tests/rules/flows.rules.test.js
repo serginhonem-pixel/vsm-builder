@@ -57,6 +57,17 @@ describe('flows rules', () => {
     await assertFails(updateDoc(doc(db, 'users', 'u1'), { plan: 'pro' }));
   });
 
+  it('pago NÃO altera teamId do próprio flow', async () => {
+    await seedUser('pro1', 'pro');
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'flows', 'f1'), {
+        ownerUid: 'pro1', teamId: null, schemaVersion: 1, share: { mode: 'private', token: null },
+      });
+    });
+    const db = env.authenticatedContext('pro1').firestore();
+    await assertFails(updateDoc(doc(db, 'flows', 'f1'), { teamId: 'x' }));
+  });
+
   it('ninguém lê pendingPlans', async () => {
     const db = env.authenticatedContext('u1').firestore();
     await assertFails(getDoc(doc(db, 'pendingPlans', 'abc')));
