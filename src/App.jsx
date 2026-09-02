@@ -8,6 +8,7 @@ import GuidedTour from './components/GuidedTour/GuidedTour.jsx';
 import { Analytics } from '@vercel/analytics/react';
 import { useVsmStore } from './store/useVsmStore.js';
 import Landing from './pages/Landing.jsx';
+import { initSessionPersist } from './lib/sessionPersist.js';
 
 const TOUR_SEEN_KEY = 'vsm_tour_seen';
 const MOBILE_HINT_KEY = 'vsm_mobile_hint_seen';
@@ -37,6 +38,8 @@ function EditorApp() {
       setTour(true);
     }
   }, []);
+
+  useEffect(() => initSessionPersist(), []);
 
   const closeTour = () => {
     localStorage.setItem(TOUR_SEEN_KEY, '1');
