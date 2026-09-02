@@ -168,7 +168,7 @@ const STEPS = [
 
 // Opções visuais (v3: prop 'options', separada dos 'styles')
 const TOUR_OPTIONS = {
-  primaryColor: '#2563eb',
+  primaryColor: '#ec3013',
   backgroundColor: '#ffffff',
   overlayColor: 'rgba(0,0,0,0.54)',
   textColor: '#111111',
@@ -209,7 +209,7 @@ const TOUR_STYLES = {
     marginTop: 16,
   },
   buttonPrimary: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#ec3013',
     borderRadius: 8,
     fontSize: 13,
     fontWeight: 600,

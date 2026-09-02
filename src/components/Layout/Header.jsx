@@ -119,7 +119,10 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
       <button type="button" data-tour="menu-toggle" className={`hbtn panel-toggle${drawerOpen ? ' active' : ''}`} onClick={onToggleDrawer} title="Menu">
         ☰
       </button>
-      <div className="brand">VSM Builder</div>
+      <div className="brand">
+        <img className="brand-mark" src="/betini-simbolo.svg" alt="" width="18" height="18" />
+        <span className="brand-name">VSM Builder</span>
+      </div>
 
       <div className="header-row">
         <div data-tour="file-actions" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

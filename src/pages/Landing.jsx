@@ -56,7 +56,10 @@ function LandingHeader() {
   return (
     <header className="landing-header">
       <div className="landing-header-inner">
-        <span className="landing-brand">VSM Builder</span>
+        <span className="landing-brand">
+          <img src="/betini-simbolo.svg" alt="" width="20" height="20" />
+          VSM Builder
+        </span>
         <a className="landing-btn landing-btn-ghost" href="/app">Abrir editor</a>
       </div>
     </header>
@@ -165,7 +168,10 @@ function CtaBanner() {
 function Footer() {
   return (
     <footer className="landing-footer">
-      <span>VSM Builder — {new Date().getFullYear()}</span>
+      <span>
+        <img src="/betini-simbolo.svg" alt="" width="14" height="14" />
+        VSM Builder — um produto Betini Studio · {new Date().getFullYear()}
+      </span>
     </footer>
   );
 }

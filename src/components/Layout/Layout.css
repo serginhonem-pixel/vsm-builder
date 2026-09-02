@@ -11,12 +11,20 @@
 }
 
 .brand {
-  font-weight: 800;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-  color: var(--black);
+  display: flex;
+  align-items: center;
+  gap: 7px;
   white-space: nowrap;
   margin-right: 4px;
+}
+
+.brand-mark { display: block; flex-shrink: 0; }
+
+.brand-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.005em;
+  color: var(--ink);
 }
 
 .header-row {
@@ -46,8 +54,8 @@
 }
 .hbtn:hover { border-color: var(--blue); background: var(--gray-100); }
 .hbtn:disabled { opacity: 0.4; cursor: default; }
-.hbtn-pdf { background: #e33; color: #fff; border-color: #c22; }
-.hbtn-pdf:hover { background: #c22; border-color: #a11; }
+.hbtn-pdf { background: var(--accent); color: #fff; border-color: var(--accent); }
+.hbtn-pdf:hover { background: var(--accent-700); border-color: var(--accent-700); }
 
 .panel-toggle {
   font-size: 15px;
