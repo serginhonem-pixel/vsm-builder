@@ -1,59 +1,65 @@
 import { useState } from 'react';
-import { activateLicense } from '../../utils/license.js';
+import { useAuthStore } from '../../store/useAuthStore.js';
 import './License.css';
 
 export default function LicenseModal({ reason, onClose, onActivated }) {
-  const [key, setKey]     = useState('');
-  const [status, setStatus] = useState('idle'); // idle | loading | error
-  const [error, setError]   = useState('');
+  const user = useAuthStore((s) => s.user);
+  const signIn = useAuthStore((s) => s.signInWithGoogle);
+  const [key, setKey] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState('');
 
   const handleActivate = async () => {
-    setStatus('loading');
-    setError('');
-    const result = await activateLicense(key);
-    if (result.valid) {
-      onActivated();
-      return;
+    setStatus('loading'); setError('');
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch('/api/claim-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ key: key.trim() }),
+      });
+      const data = res.ok ? await res.json() : {};
+      if (data.plan && data.plan !== 'free') {
+        useAuthStore.setState({ plan: data.plan });
+        onActivated();
+        return;
+      }
+      setStatus('error');
+      setError('Chave inválida. Confira e tente de novo.');
+    } catch {
+      setStatus('error');
+      setError('Não foi possível validar agora. Tente de novo em instantes.');
     }
-    setStatus('error');
-    setError(
-      result.error === 'network'
-        ? 'Não foi possível validar agora. Tente de novo em instantes.'
-        : 'Chave inválida. Confira e tente de novo.'
-    );
   };
 
   return (
     <div className="license-backdrop" onClick={onClose}>
       <div className="license-modal" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="license-close" onClick={onClose}>✕</button>
-
-        <h2>Ative sua licença</h2>
+        <h2>Assine o VSM Builder Pro</h2>
         {reason && <p className="license-reason">{reason}</p>}
+        <p>Salve seus mapas na nuvem e abra de qualquer dispositivo.</p>
+        {/* TODO produto: botão de compra CartPanda aqui */}
 
-        <label className="license-label">
-          Chave de licença
-          <input
-            className="license-input"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="VSM-XXXX-XXXX"
-            autoFocus
-          />
-        </label>
-
-        {status === 'error' && <p className="license-error">{error}</p>}
-
-        <button
-          type="button"
-          className="license-activate-btn"
-          onClick={handleActivate}
-          disabled={status === 'loading'}
-        >
-          {status === 'loading' ? 'Validando…' : 'Ativar'}
-        </button>
-
-        <p className="license-buy-hint">Ainda não tem uma licença? Em breve, link de compra aqui.</p>
+        {!user ? (
+          <>
+            <p className="license-reason">Entre primeiro para ativar sua licença ou assinatura.</p>
+            <button type="button" className="license-activate-btn" onClick={signIn}>Entrar com Google</button>
+          </>
+        ) : (
+          <>
+            <label className="license-label">
+              Já tem uma chave?
+              <input className="license-input" value={key}
+                onChange={(e) => setKey(e.target.value)} placeholder="VSM-XXXX-XXXX" />
+            </label>
+            {status === 'error' && <p className="license-error">{error}</p>}
+            <button type="button" className="license-activate-btn"
+              onClick={handleActivate} disabled={status === 'loading' || !key.trim()}>
+              {status === 'loading' ? 'Validando…' : 'Ativar'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
