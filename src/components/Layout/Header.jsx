@@ -6,7 +6,8 @@ import ComparisonView from '../Comparison/ComparisonView.jsx';
 import LicenseModal from '../License/LicenseModal.jsx';
 import PwaInstallButton from '../PwaInstall/PwaInstallButton.jsx';
 import { ctToMin } from '../../utils/kpi.js';
-import { isLicensed } from '../../utils/license.js';
+import { canPersist, listFlows, loadFlow, saveFlow } from '../../lib/flowsRepo.js';
+import AuthMenu from '../Auth/AuthMenu.jsx';
 import './Layout.css';
 
 function KpiChips() {
@@ -91,30 +92,52 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
   const [name, setName]         = useState('Meu fluxo');
   const [loadName, setLoadName] = useState('');
   const [saved, setSaved]       = useState([]);
+  const [currentFlowId, setCurrentFlowId] = useState(null);
   const [showYamazumi, setShowYamazumi] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [licenseReason, setLicenseReason] = useState(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const reportRef  = useRef(null);
 
-  const saveFlow       = useVsmStore((s) => s.saveFlow);
-  const loadFlow       = useVsmStore((s) => s.loadFlow);
-  const listFlows      = useVsmStore((s) => s.listFlows);
   const clearCanvas    = useVsmStore((s) => s.clearCanvas);
   const activeState    = useVsmStore((s) => s.activeState);
   const switchToState  = useVsmStore((s) => s.switchToState);
 
-  const refresh = () => setSaved(listFlows());
-  useEffect(refresh, []);
+  const refresh = () => { listFlows().then(setSaved).catch(() => setSaved([])); };
+  useEffect(() => { refresh(); }, []);
 
-  const handleSalvar = () => {
-    if (!isLicensed()) {
-      setLicenseReason('Pra manter suas alterações salvas entre sessões, ative sua licença.');
+  const handleSalvar = async () => {
+    if (!canPersist()) {
+      setLicenseReason('Salve seus mapas na nuvem e abra de qualquer dispositivo.');
       return;
     }
-    saveFlow(name.trim());
+    const { id } = await saveFlow(currentFlowId, {
+      name: name.trim() || 'Meu fluxo',
+      storeState: useVsmStore.getState(),
+    });
+    setCurrentFlowId(id);
     refresh();
   };
+
+  const handleAbrir = async () => {
+    const patch = await loadFlow(loadName);
+    if (patch) { useVsmStore.setState(patch); setCurrentFlowId(loadName); }
+  };
+
+  useEffect(() => {
+    if (!canPersist() || !currentFlowId) return;
+    let t;
+    const unsub = useVsmStore.subscribe(() => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        saveFlow(currentFlowId, {
+          name: name.trim() || 'Meu fluxo',
+          storeState: useVsmStore.getState(),
+        }).catch(() => {});
+      }, 4000);
+    });
+    return () => { clearTimeout(t); unsub(); };
+  }, [currentFlowId, name]);
 
   return (
     <header className="app-header">
@@ -152,6 +175,8 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
             onClick={() => setMoreOpen((v) => !v)}>
             ⋯ Mais
           </button>
+
+          <AuthMenu />
         </div>
 
         <div className={`hdr-secondary${moreOpen ? ' open' : ''}`}>
@@ -184,10 +209,10 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
             Abrir fluxo salvo
             <select className="hinput" value={loadName} onChange={(e) => setLoadName(e.target.value)}>
               <option value="">Selecione</option>
-              {saved.map((item) => <option key={item} value={item}>{item}</option>)}
+              {saved.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
             </select>
           </label>
-          <button type="button" className="hbtn" onClick={() => loadFlow(loadName)} disabled={!loadName}>↩</button>
+          <button type="button" className="hbtn" onClick={handleAbrir} disabled={!loadName}>↩</button>
         </div>
 
         <div className="header-sep" />
