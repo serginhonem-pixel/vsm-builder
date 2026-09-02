@@ -52,8 +52,8 @@ Consequências:
 
 ### Persistência por tier
 
-- **Free / anônimo:** trabalho vive **só no estado em memória** (Zustand). Recarregar ou fechar a aba → volta ao mapa inicial. Um banner fixo "Entre para salvar seu trabalho" fica visível.
-  - **Ponto aberto (§9.11):** confirmar a semântica exata de "reseta a cada entrada" — em memória pura (some no refresh) vs `sessionStorage` (sobrevive ao refresh, some ao fechar a aba). Default do spec: `sessionStorage`, menos hostil.
+- **Free / anônimo:** trabalho persiste em **`sessionStorage`** (decidido 2026-09-02) — sobrevive a um refresh acidental, é apagado ao fechar a aba / nova sessão. Banner fixo "Entre para salvar seu trabalho".
+  - Export PDF e JSON **continuam disponíveis no free** (válvula de escape).
 - **Pago:** mapas vivem no Firestore com `persistentLocalCache` ligado. O SDK cacheia e enfileira escritas sozinho ("funciona no avião"). Conflito = last-write-wins (aceitável: 1 usuário no próprio mapa).
 - Sem sync bidirecional localStorage ↔ nuvem. A migração (§5.4) é evento único.
 
@@ -386,8 +386,8 @@ Não há suíte hoje. Introduzir **Vitest**.
 | 8 | Deploy das regras do Firestore é passo manual/fora da Vercel | documentar; considerar step no CI |
 | 9 | Config web do Firebase no cliente | não é segredo, mas restringir domínio no console (Auth → Authorized domains) + regras firmes |
 | 10 | Custo de billing de assentos (fase 3) | spec separado com skill `payments`/Stripe |
-| 11 | **"Reseta a cada entrada" — semântica exata do free** | confirmar: memória pura (some no refresh, mais hostil, mais pressão p/ pagar) vs `sessionStorage` (sobrevive ao refresh, some ao fechar aba). Default do spec: `sessionStorage`. Perder trabalho num refresh acidental pode espantar em vez de converter. |
-| 12 | Free perde o "salvar local" que existe hoje | é regressão deliberada de UX a favor da conversão; garantir que **exportar PDF/JSON continua no free** como válvula de escape |
+| 11 | ~~Semântica do free~~ | **RESOLVIDO:** `sessionStorage` (sobrevive ao refresh, some ao fechar aba). |
+| 12 | ~~Export no free~~ | **RESOLVIDO:** export PDF/JSON continua no free. |
 
 ---
 
