@@ -139,20 +139,23 @@ Escrito **apenas** pelo `/api/cartpanda-webhook`. Lido e apagado pelo `/api/clai
 
 #### 3.1 Formato de `state`
 
-Espelha o que `useVsmStore` mantém e o que `saveFlow(name, content)` já serializa hoje. Campos (confirmar contra `src/store/useVsmStore.js` na implementação):
+**Fato do código atual (2026-09-02):** a persistência real vive **dentro de `src/store/useVsmStore.js`** (`saveFlow`/`loadFlow`/`listFlows`, chave `localStorage['vsm-flows']`). O `src/utils/storage.js` (chave `vsm_builder_flows`) e o `src/components/Canvas/*` são **código morto** — ninguém os importa. O `Header.jsx` chama os métodos do store.
+
+O `saveFlow` atual serializa só: `supplier, customer, pcp, processes, wips, shingoSteps, elements`. **Não** persiste `demand`, `available`, `lote`, `shifts`, nem o estado futuro (`savedStates`) — limitação pré-existente.
+
+**Decisão:** ao reconstruir a camada de persistência, capturar o **estado completo**:
 
 ```
 state: {
   supplier, customer, pcp,
-  processes: [...], wips: [...], arrows: [...], elements: [...],
+  processes: [...], wips: [...], elements: [...], shingoSteps: [...],
   demand, available, lote, shifts: [...],
   activeState: 'atual' | 'futuro',
-  futuro: { processes, wips, elements, ... },   // estado futuro
-  savedAt: ISO string
+  savedStates: { atual: {...} | null, futuro: {...} | null }
 }
 ```
 
-Tamanho esperado: poucos KB mesmo para mapas grandes. Um doc só, sem subcoleções.
+`schemaVersion: 1` marca este formato. Tamanho: poucos KB. Um doc só, sem subcoleções.
 
 ### `teams/{teamId}` — fase 3
 
