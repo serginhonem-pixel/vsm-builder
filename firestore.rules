@@ -14,7 +14,9 @@ service cloud.firestore {
       allow read: if signedIn() && request.auth.uid == uid;
       allow create: if signedIn() && request.auth.uid == uid
                     && request.resource.data.plan == 'free'
-                    && request.resource.data.flowCount == 0;
+                    && request.resource.data.flowCount == 0
+                    && request.resource.data.teamId == null
+                    && request.resource.data.role == null;
       allow update: if signedIn() && request.auth.uid == uid
                     && request.resource.data.plan == resource.data.plan
                     && request.resource.data.planSource == resource.data.planSource
@@ -30,7 +32,8 @@ service cloud.firestore {
       allow create: if signedIn() && isPaid()
                     && request.resource.data.ownerUid == request.auth.uid
                     && request.resource.data.schemaVersion == 1
-                    && request.resource.data.share.mode == 'private';
+                    && request.resource.data.share.mode == 'private'
+                    && request.resource.data.teamId == null;
       allow update: if isOwner() && isPaid()
                     && request.resource.data.ownerUid == resource.data.ownerUid
                     && request.resource.data.teamId == resource.data.teamId;

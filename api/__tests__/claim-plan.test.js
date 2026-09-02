@@ -29,7 +29,7 @@ function mockRes() {
 beforeEach(() => {
   vi.clearAllMocks();
   process.env.VALID_LICENSES = 'VSM-AAAA-BBBB';
-  verifyIdToken.mockResolvedValue({ uid: 'u1', email: 'buyer@x.com' });
+  verifyIdToken.mockResolvedValue({ uid: 'u1', email: 'buyer@x.com', email_verified: true });
   userGet.mockResolvedValue({ exists: true, data: () => ({ plan: 'free' }) });
 });
 
@@ -46,6 +46,14 @@ describe('claim-plan', () => {
     const res = mockRes();
     await handler({ method: 'GET', headers: {}, body: {} }, res);
     expect(res.statusCode).toBe(405);
+  });
+
+  it('400 se e-mail não verificado', async () => {
+    verifyIdToken.mockResolvedValue({ uid: 'u1', email: 'buyer@x.com', email_verified: false });
+    const { default: handler } = await import('../claim-plan.js');
+    const res = mockRes();
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok' }, body: {} }, res);
+    expect(res.statusCode).toBe(400);
   });
 
   it('casa compra pendente por e-mail → plan pro', async () => {

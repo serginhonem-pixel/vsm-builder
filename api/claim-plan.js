@@ -16,6 +16,10 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'bad_token' });
   }
 
+  if (!decoded.email || decoded.email_verified === false) {
+    return res.status(400).json({ error: 'no_email' });
+  }
+
   const userRef = db.doc(`users/${decoded.uid}`);
   const now = new Date();
 

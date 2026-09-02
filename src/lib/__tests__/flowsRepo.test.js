@@ -73,3 +73,19 @@ describe('listFlows', () => {
     expect(await m.listFlows()).toEqual([{ id: 'f1', name: 'A', updatedAt: 10 }]);
   });
 });
+
+describe('loadFlow', () => {
+  it('devolve name + patch quando pro', async () => {
+    planState.plan = 'pro';
+    getDoc.mockResolvedValue({ exists: () => true, data: () => ({ name: 'Linha A', state: { processes: [{ id: 'p9' }] } }) });
+    const m = await import('../flowsRepo.js');
+    const r = await m.loadFlow('f1');
+    expect(r.name).toBe('Linha A');
+    expect(r.patch.processes).toEqual([{ id: 'p9' }]);
+    expect(r.patch.selectedId).toBe(null);
+  });
+  it('null quando free', async () => {
+    const m = await import('../flowsRepo.js');
+    expect(await m.loadFlow('f1')).toBe(null);
+  });
+});

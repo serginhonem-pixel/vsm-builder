@@ -8,6 +8,7 @@ import PwaInstallButton from '../PwaInstall/PwaInstallButton.jsx';
 import { ctToMin } from '../../utils/kpi.js';
 import { canPersist, listFlows, loadFlow, saveFlow } from '../../lib/flowsRepo.js';
 import AuthMenu from '../Auth/AuthMenu.jsx';
+import { useAuthStore } from '../../store/useAuthStore.js';
 import './Layout.css';
 
 function KpiChips() {
@@ -98,13 +99,16 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
   const [licenseReason, setLicenseReason] = useState(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const reportRef  = useRef(null);
+  const plan = useAuthStore((s) => s.plan);
+  const nameRef = useRef(name);
+  useEffect(() => { nameRef.current = name; }, [name]);
 
   const clearCanvas    = useVsmStore((s) => s.clearCanvas);
   const activeState    = useVsmStore((s) => s.activeState);
   const switchToState  = useVsmStore((s) => s.switchToState);
 
   const refresh = () => { listFlows().then(setSaved).catch(() => setSaved([])); };
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => { refresh(); }, [plan]);
 
   const handleSalvar = async () => {
     if (!canPersist()) {
@@ -120,8 +124,12 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
   };
 
   const handleAbrir = async () => {
-    const patch = await loadFlow(loadName);
-    if (patch) { useVsmStore.setState(patch); setCurrentFlowId(loadName); }
+    const flow = await loadFlow(loadName);
+    if (flow) {
+      useVsmStore.setState(flow.patch);
+      setName(flow.name);
+      setCurrentFlowId(loadName);
+    }
   };
 
   useEffect(() => {
@@ -131,13 +139,13 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
       clearTimeout(t);
       t = setTimeout(() => {
         saveFlow(currentFlowId, {
-          name: name.trim() || 'Meu fluxo',
+          name: (nameRef.current || '').trim() || 'Meu fluxo',
           storeState: useVsmStore.getState(),
         }).catch(() => {});
       }, 4000);
     });
     return () => { clearTimeout(t); unsub(); };
-  }, [currentFlowId, name]);
+  }, [currentFlowId, plan]);
 
   return (
     <header className="app-header">

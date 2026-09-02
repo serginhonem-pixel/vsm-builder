@@ -25,6 +25,7 @@ export default function MigrationModal() {
     try { return sessionStorage.getItem(DONE_KEY) === '1'; } catch { return false; }
   });
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isPaid(state) || done || legacy.length === 0) return null;
 
@@ -34,15 +35,27 @@ export default function MigrationModal() {
   };
 
   const migrate = async () => {
-    setBusy(true);
+    setBusy(true); setError('');
+    let allOk = true;
     for (const item of legacy) {
-      await saveFlow(null, { name: item.name, storeState: item.state });
+      try {
+        await saveFlow(null, { name: item.name, storeState: item.state });
+        item.__migrated = true;
+      } catch {
+        allOk = false;
+        break;
+      }
     }
-    for (const key of LEGACY_KEYS) {
-      const v = localStorage.getItem(key);
-      if (v) { localStorage.setItem(`${key}__migrated_backup`, v); localStorage.removeItem(key); }
+    if (allOk) {
+      for (const key of LEGACY_KEYS) {
+        const v = localStorage.getItem(key);
+        if (v) { localStorage.setItem(`${key}__migrated_backup`, v); localStorage.removeItem(key); }
+      }
+      finish();
+    } else {
+      setError('Não deu pra enviar todos agora. Tente de novo mais tarde — mapas já enviados podem aparecer duplicados e você pode apagá-los.');
+      setBusy(false);
     }
-    finish();
   };
 
   return (
@@ -54,6 +67,7 @@ export default function MigrationModal() {
           {busy ? 'Enviando…' : `Trazer ${legacy.length} mapa(s)`}
         </button>
         <button type="button" className="license-close-text" onClick={finish} disabled={busy}>Agora não</button>
+        {error && <p className="license-error">{error}</p>}
       </div>
     </div>
   );

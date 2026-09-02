@@ -29,7 +29,7 @@ export async function loadFlow(id) {
   const fs = await import('firebase/firestore');
   const snap = await fs.getDoc(fs.doc(db, 'flows', id));
   if (!snap.exists()) return null;
-  return hydrateFlowState(snap.data().state);
+  return { name: snap.data().name, patch: hydrateFlowState(snap.data().state) };
 }
 
 export async function saveFlow(id, { name, storeState }) {

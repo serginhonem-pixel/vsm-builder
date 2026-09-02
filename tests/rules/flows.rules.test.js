@@ -68,6 +68,32 @@ describe('flows rules', () => {
     await assertFails(updateDoc(doc(db, 'flows', 'f1'), { teamId: 'x' }));
   });
 
+  it('não cria user com teamId/role forjados', async () => {
+    const db = env.authenticatedContext('u9').firestore();
+    await assertFails(setDoc(doc(db, 'users', 'u9'), {
+      email: 'u9@x.com', plan: 'free', planSource: null, flowCount: 0, teamId: 'X', role: 'owner',
+    }));
+  });
+
+  it('pago atualiza o próprio flow (name/state)', async () => {
+    await seedUser('pro1', 'pro');
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'flows', 'f1'), {
+        ownerUid: 'pro1', teamId: null, name: 'A', state: {}, schemaVersion: 1,
+        share: { mode: 'private', token: null },
+      });
+    });
+    const db = env.authenticatedContext('pro1').firestore();
+    await assertSucceeds(updateDoc(doc(db, 'flows', 'f1'), { name: 'B', state: { x: 1 }, schemaVersion: 1 }));
+  });
+
+  it('pago incrementa o próprio flowCount', async () => {
+    await seedUser('pro1', 'pro');
+    const db = env.authenticatedContext('pro1').firestore();
+    const { increment } = await import('firebase/firestore');
+    await assertSucceeds(updateDoc(doc(db, 'users', 'pro1'), { flowCount: increment(1) }));
+  });
+
   it('ninguém lê pendingPlans', async () => {
     const db = env.authenticatedContext('u1').firestore();
     await assertFails(getDoc(doc(db, 'pendingPlans', 'abc')));

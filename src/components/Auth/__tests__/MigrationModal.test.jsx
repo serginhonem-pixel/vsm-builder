@@ -30,6 +30,16 @@ describe('MigrationModal', () => {
     expect(localStorage.getItem('vsm-flows__migrated_backup')).toBeTruthy();
   });
 
+  it('erro na migração: não renomeia keys, libera o botão', async () => {
+    saveFlow.mockRejectedValueOnce(new Error('net'));
+    const { default: MigrationModal } = await import('../MigrationModal.jsx');
+    render(<MigrationModal />);
+    await userEvent.click(screen.getByRole('button', { name: /trazer/i }));
+    expect(localStorage.getItem('vsm-flows')).not.toBe(null);
+    expect(localStorage.getItem('vsm-flows__migrated_backup')).toBe(null);
+    expect(screen.getByRole('button', { name: /trazer/i })).not.toBeDisabled();
+  });
+
   it('free: não renderiza', async () => {
     auth = { user: null, plan: 'free' };
     const { default: MigrationModal } = await import('../MigrationModal.jsx');

@@ -1,14 +1,19 @@
 import crypto from 'node:crypto';
 import { getAdmin, sha256Email } from './_firebaseAdmin.js';
 
-// Vercel: precisamos do corpo cru p/ validar a assinatura.
-export const config = { api: { bodyParser: false } };
-
+// NOTE: @vercel/node parses JSON bodies and does not honor `config.api.bodyParser`
+// (that is a Next.js convention; this project is a Vite SPA). Getting the exact raw
+// bytes for HMAC is not reliable here. This path is NOT production-verified —
+// see Task 7 Step 6 pendency (real CartPanda payload + signature scheme).
 async function readRaw(req) {
   if (typeof req.rawBody === 'string') return req.rawBody;
-  const chunks = [];
-  for await (const c of req) chunks.push(c);
-  return Buffer.concat(chunks).toString('utf8');
+  if (typeof req.body === 'string') return req.body;
+  try {
+    const chunks = [];
+    for await (const c of req) chunks.push(c);
+    if (chunks.length) return Buffer.concat(chunks).toString('utf8');
+  } catch { /* stream already consumed */ }
+  return req.body ? JSON.stringify(req.body) : '';
 }
 
 const PAID_EVENTS = new Set(['order.paid', 'order.approved', 'payment.approved']);
