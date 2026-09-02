@@ -214,7 +214,4 @@ export const useVsmStore = create((set, get) => ({
     selectedId:  null,
   }),
 
-  saveFlow: () => { throw new Error('use flowsRepo (Task 9)'); },
-  loadFlow: () => { throw new Error('use flowsRepo (Task 9)'); },
-  listFlows: () => [],
 }));
