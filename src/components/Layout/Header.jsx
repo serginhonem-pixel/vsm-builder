@@ -94,6 +94,7 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
   const [showYamazumi, setShowYamazumi] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [licenseReason, setLicenseReason] = useState(null);
+  const [moreOpen, setMoreOpen] = useState(false);
   const reportRef  = useRef(null);
 
   const saveFlow       = useVsmStore((s) => s.saveFlow);
@@ -126,60 +127,71 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
       </div>
 
       <div className="header-row">
-        <div data-tour="file-actions" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button type="button" className="hbtn" onClick={clearCanvas}>Novo fluxo</button>
-          <button type="button" className="hbtn" onClick={handleSalvar}>Salvar</button>
-          <button type="button" className="hbtn hbtn-pdf" onClick={() => exportPdf(name.trim(), reportRef.current)}>Exportar PDF</button>
-        </div>
-        {activeView === 'shingo' ? (
-          <button type="button" className="hbtn" onClick={onBackToVsm}>← Voltar ao VSM</button>
-        ) : (
-          <button type="button" data-tour="btn-shingo" className="hbtn btn-shingo" onClick={onOpenShingo}>Fluxo de Shingo</button>
-        )}
-        <button type="button" data-tour="btn-yamazumi" className="hbtn btn-yamazumi" onClick={() => setShowYamazumi(true)}>
-          Yamazumi
-        </button>
-        <button type="button" className="hbtn btn-tour" onClick={onStartTour}>
-          ▶ Tour
-        </button>
-        <PwaInstallButton />
+        <div className="hdr-primary">
+          <div data-tour="file-actions" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button type="button" className="hbtn" onClick={clearCanvas}>Novo fluxo</button>
+            <button type="button" className="hbtn" onClick={handleSalvar}>Salvar</button>
+            <button type="button" className="hbtn hbtn-pdf" onClick={() => exportPdf(name.trim(), reportRef.current)}>Exportar PDF</button>
+          </div>
 
-        <div className="header-sep" />
+          {/* Estado Atual / Futuro */}
+          <div data-tour="state-toggle" className="state-toggle">
+            <button type="button"
+              className={`state-btn${activeState === 'atual' ? ' active' : ''}`}
+              onClick={() => switchToState('atual')}>
+              Atual
+            </button>
+            <button type="button"
+              className={`state-btn${activeState === 'futuro' ? ' active' : ''}`}
+              onClick={() => switchToState('futuro')}>
+              Futuro
+            </button>
+          </div>
 
-        {/* Estado Atual / Futuro */}
-        <div data-tour="state-toggle" className="state-toggle">
-          <button type="button"
-            className={`state-btn${activeState === 'atual' ? ' active' : ''}`}
-            onClick={() => switchToState('atual')}>
-            Atual
-          </button>
-          <button type="button"
-            className={`state-btn${activeState === 'futuro' ? ' active' : ''}`}
-            onClick={() => switchToState('futuro')}>
-            Futuro
+          <button type="button" className="hbtn hdr-more-btn" aria-expanded={moreOpen}
+            onClick={() => setMoreOpen((v) => !v)}>
+            ⋯ Mais
           </button>
         </div>
-        <button type="button" className="hbtn" onClick={() => setShowComparison(true)}>
-          Comparar Atual x Futuro
-        </button>
+
+        <div className={`hdr-secondary${moreOpen ? ' open' : ''}`}>
+          {activeView === 'shingo' ? (
+            <button type="button" className="hbtn" onClick={onBackToVsm}>← Voltar ao VSM</button>
+          ) : (
+            <button type="button" data-tour="btn-shingo" className="hbtn btn-shingo" onClick={onOpenShingo}>Fluxo de Shingo</button>
+          )}
+          <button type="button" data-tour="btn-yamazumi" className="hbtn btn-yamazumi" onClick={() => setShowYamazumi(true)}>
+            Yamazumi
+          </button>
+          <button type="button" className="hbtn btn-tour" onClick={onStartTour}>
+            ▶ Tour
+          </button>
+          <PwaInstallButton />
+
+          <div className="header-sep" />
+
+          <button type="button" className="hbtn" onClick={() => setShowComparison(true)}>
+            Comparar Atual x Futuro
+          </button>
+
+          <div className="header-sep" />
+
+          <label className="hlabel">
+            Nome do fluxo
+            <input className="hinput" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Carrinho, Telha..." />
+          </label>
+          <label className="hlabel">
+            Abrir fluxo salvo
+            <select className="hinput" value={loadName} onChange={(e) => setLoadName(e.target.value)}>
+              <option value="">Selecione</option>
+              {saved.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+          <button type="button" className="hbtn" onClick={() => loadFlow(loadName)} disabled={!loadName}>↩</button>
+        </div>
 
         <div className="header-sep" />
-
-        <label className="hlabel">
-          Nome do fluxo
-          <input className="hinput" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Carrinho, Telha..." />
-        </label>
-        <label className="hlabel">
-          Abrir fluxo salvo
-          <select className="hinput" value={loadName} onChange={(e) => setLoadName(e.target.value)}>
-            <option value="">Selecione</option>
-            {saved.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
-        </label>
-        <button type="button" className="hbtn" onClick={() => loadFlow(loadName)} disabled={!loadName}>↩</button>
-
-        <div className="header-sep" />
-        <div data-tour="kpi-chips"><KpiChips /></div>
+        <div data-tour="kpi-chips" className="hdr-kpis"><KpiChips /></div>
       </div>
 
 

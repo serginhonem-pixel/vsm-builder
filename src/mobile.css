@@ -1,0 +1,182 @@
+/* ═══════════════════════════════════════════════════════
+   MOBILE — Fase 1: navegável no celular
+   Carregado por último no main.jsx, então ganha de empates
+   de especificidade com os CSS dos componentes.
+   ═══════════════════════════════════════════════════════ */
+
+@media (max-width: 720px) {
+
+  /* ── Shell: altura fluida (dvh acompanha a barra do browser) ── */
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* header deixa de ter altura fixa; app-body ocupa o resto */
+  .app-body {
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    padding: 8px;
+  }
+
+  /* ── Header: quebra em linhas em vez de estourar a largura ── */
+  .app-header {
+    height: auto;
+    min-height: 48px;
+    flex-wrap: wrap;
+    padding: 6px 10px;
+    row-gap: 6px;
+  }
+
+  .header-row {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  /* separadores verticais não fazem sentido com wrap */
+  .header-sep { display: none; }
+
+  /* linha sempre visível: ações de arquivo + Atual/Futuro + "⋯ Mais" */
+  .hdr-primary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+  .hdr-more-btn {
+    display: inline-block;
+    margin-left: auto;
+    font-weight: 700;
+  }
+
+  /* ações secundárias: recolhidas até tocar em "⋯ Mais" */
+  .hdr-secondary {
+    display: none;
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0 2px;
+    border-top: 1px solid var(--gray-200);
+  }
+  .hdr-secondary.open { display: flex; }
+
+  /* alvos de toque maiores */
+  .hbtn,
+  .state-btn {
+    min-height: 36px;
+    padding: 7px 12px;
+  }
+  .panel-toggle { min-height: 36px; }
+
+  /* nome do fluxo / abrir salvo: cada um na sua linha */
+  .hlabel {
+    flex: 1 1 100%;
+    gap: 6px;
+  }
+  .hinput {
+    flex: 1;
+    min-width: 0;
+    min-height: 36px;
+    font-size: 16px;   /* evita zoom automático do iOS no foco */
+  }
+
+  /* KPIs: uma tira rolável em vez de espremer */
+  .hdr-kpis { width: 100%; }
+  .header-kpis {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    gap: 6px;
+  }
+  .hkpi { flex-shrink: 0; }
+
+  /* ── Drawer da sidebar ── */
+  .sidebar-drawer { width: min(300px, 86vw); }
+
+  /* ── PropertiesPanel vira bottom-sheet ── */
+  .props-float {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    max-height: 82dvh;
+    animation: props-sheet-up 0.18s ease;
+  }
+
+  .properties-panel {
+    max-height: 82dvh;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+    padding-top: 18px;
+  }
+
+  /* alça visual do sheet */
+  .properties-panel::before {
+    content: '';
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--gray-300);
+  }
+
+  @keyframes props-sheet-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Inputs em geral: 16px + alvo de 40px ── */
+  .side-kpi-row input,
+  .shift-name-inp,
+  .shift-avail-inp,
+  .properties-field input,
+  .properties-field-row input,
+  .acao-card input,
+  .acao-row input {
+    font-size: 16px;
+    min-height: 40px;
+  }
+  .shift-avail-inp { width: 64px; }
+
+  .palette-button { min-height: 40px; }
+  .proc-list-item { padding: 10px; }
+
+  /* ── Faixa de aviso (não-bloqueante) ── */
+  .mobile-hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+    background: #fff4e5;
+    border-bottom: 1px solid #f5d9b0;
+    flex-shrink: 0;
+  }
+  .mobile-hint span { flex: 1; }
+  .mobile-hint button {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: var(--ink-soft);
+    padding: 4px 8px;
+    min-height: 32px;
+  }
+}
+
+/* faixa some no desktop de qualquer jeito (só renderiza < 720px) */
+@media (min-width: 721px) {
+  .mobile-hint { display: none; }
+}

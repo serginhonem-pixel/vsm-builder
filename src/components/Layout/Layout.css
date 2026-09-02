@@ -34,6 +34,12 @@
   flex: 1;
 }
 
+/* No desktop os grupos são transparentes — layout continua uma linha só.
+   O mobile.css transforma .hdr-secondary num menu recolhível. */
+.hdr-primary,
+.hdr-secondary { display: contents; }
+.hdr-more-btn { display: none; }
+
 .header-sep {
   width: 1px;
   height: 20px;

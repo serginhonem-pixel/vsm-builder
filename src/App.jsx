@@ -10,6 +10,7 @@ import { useVsmStore } from './store/useVsmStore.js';
 import Landing from './pages/Landing.jsx';
 
 const TOUR_SEEN_KEY = 'vsm_tour_seen';
+const MOBILE_HINT_KEY = 'vsm_mobile_hint_seen';
 const MOBILE_BREAKPOINT = 720;
 
 function EditorApp() {
@@ -17,8 +18,16 @@ function EditorApp() {
   const [drawerOpen, setDrawer] = useState(false);
   const [tourRunning, setTour]  = useState(false);
   const [mobileNotice, setMobileNotice] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT
+    () =>
+      typeof window !== 'undefined' &&
+      window.innerWidth < MOBILE_BREAKPOINT &&
+      !localStorage.getItem(MOBILE_HINT_KEY)
   );
+
+  const dismissMobileNotice = () => {
+    localStorage.setItem(MOBILE_HINT_KEY, '1');
+    setMobileNotice(false);
+  };
   const selectedId  = useVsmStore((s) => s.selectedId);
   const setSelected = useVsmStore((s) => s.setSelected);
 
@@ -36,25 +45,6 @@ function EditorApp() {
 
   return (
     <div className="app-shell">
-      {mobileNotice && (
-        <div className="mobile-notice">
-          <div className="mobile-notice-box">
-            <h2>Melhor no computador</h2>
-            <p>
-              O editor de VSM usa arrastar e soltar em um canvas amplo — funciona
-              melhor em uma tela de desktop ou tablet. Você pode continuar por
-              aqui, mas a experiência pode ficar apertada.
-            </p>
-            <button
-              className="mobile-notice-btn"
-              onClick={() => setMobileNotice(false)}
-            >
-              Continuar mesmo assim
-            </button>
-          </div>
-        </div>
-      )}
-
       <Header
         onOpenShingo={() => setView('shingo')}
         onBackToVsm={() => setView('vsm')}
@@ -63,6 +53,16 @@ function EditorApp() {
         onToggleDrawer={() => setDrawer((v) => !v)}
         onStartTour={() => { setDrawer(false); setView('vsm'); setTour(true); }}
       />
+
+      {mobileNotice && (
+        <div className="mobile-hint">
+          <span>
+            Feito pra desktop — no celular dá pra ver e ajustar, mas alguns
+            controles ficam apertados.
+          </span>
+          <button onClick={dismissMobileNotice} aria-label="Fechar aviso">✕</button>
+        </div>
+      )}
 
       {tourRunning && (
         <GuidedTour
