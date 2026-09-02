@@ -34,7 +34,8 @@ describe('initAuth', () => {
     let cb;
     onAuthStateChanged.mockImplementation((_a, fn) => { cb = fn; return () => {}; });
     initAuth();
-    await Promise.resolve();
+    // aguarda a IIFE async de initAuth registrar o listener
+    for (let i = 0; i < 50 && !cb; i++) await new Promise((r) => setTimeout(r, 0));
     await cb({ uid: 'u1', email: 'a@b.com', displayName: 'A', photoURL: 'p', getIdToken: async () => 'tok' });
     await new Promise((r) => setTimeout(r, 0));
     expect(setDoc).toHaveBeenCalled();          // criou o doc

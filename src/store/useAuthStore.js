@@ -1,8 +1,4 @@
 import { create } from 'zustand';
-// onAuthStateChanged precisa estar disponível de forma síncrona logo após
-// `await getFirebase()` (senão o listener não é registrado a tempo). O resto
-// do SDK Firebase continua sendo carregado sob demanda via import() dinâmico.
-import { onAuthStateChanged } from 'firebase/auth';
 import { getFirebase } from '../lib/firebase.js';
 
 export const isPaid = (s) => s.plan === 'pro' || s.plan === 'team';
@@ -39,6 +35,7 @@ export function initAuth() {
   let cancelled = false;
   (async () => {
     const { auth, db } = await getFirebase();
+    const { onAuthStateChanged } = await import('firebase/auth');
     if (cancelled) return;
     unsub = onAuthStateChanged(auth, async (fbUser) => {
       if (!fbUser) {
