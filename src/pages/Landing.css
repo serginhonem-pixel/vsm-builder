@@ -40,6 +40,14 @@
   gap: 7px;
 }
 
+.landing-footer-link {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--divider);
+}
+.landing-footer-link:hover { border-bottom-color: var(--accent); }
+
 .landing-btn {
   display: inline-block;
   padding: 10px 20px;

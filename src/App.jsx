@@ -5,6 +5,7 @@ import VsmLayout from './components/VsmLayout/VsmLayout.jsx';
 import PropertiesPanel from './components/PropertiesPanel/PropertiesPanel.jsx';
 import ShingoDiagram from './components/ShingoDiagram/ShingoDiagram.jsx';
 import GuidedTour from './components/GuidedTour/GuidedTour.jsx';
+import { Analytics } from '@vercel/analytics/react';
 import { useVsmStore } from './store/useVsmStore.js';
 import Landing from './pages/Landing.jsx';
 
@@ -108,5 +109,10 @@ function EditorApp() {
 
 export default function App() {
   const isLanding = window.location.pathname === '/' || window.location.pathname === '';
-  return isLanding ? <Landing /> : <EditorApp />;
+  return (
+    <>
+      {isLanding ? <Landing /> : <EditorApp />}
+      <Analytics />
+    </>
+  );
 }

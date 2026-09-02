@@ -170,7 +170,16 @@ function Footer() {
     <footer className="landing-footer">
       <span>
         <img src="/betini-simbolo.svg" alt="" width="14" height="14" />
-        VSM Builder — um produto Betini Studio · {new Date().getFullYear()}
+        VSM Builder — um produto
+        <a
+          className="landing-footer-link"
+          href="https://betinistudio.com"
+          target="_blank"
+          rel="noopener"
+        >
+          Betini Studio
+        </a>
+        · {new Date().getFullYear()}
       </span>
     </footer>
   );
