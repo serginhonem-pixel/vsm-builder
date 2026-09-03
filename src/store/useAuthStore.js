@@ -19,6 +19,7 @@ export const useAuthStore = create((set, get) => ({
       // navega pro Google e volta; onAuthStateChanged/getRedirectResult tratam o retorno.
       await signInWithRedirect(auth, new GoogleAuthProvider());
     } catch (e) {
+      console.error('[vsm-auth] signInWithRedirect falhou:', e.code, e.message, e);
       set({ status: 'ready', error: e.code || 'sign-in-failed' });
     }
   },
@@ -43,6 +44,7 @@ export function initAuth() {
     // Captura erro do retorno do signInWithRedirect (ex.: domínio não autorizado)
     // pra não falhar em silêncio — onAuthStateChanged cobre o caso de sucesso.
     getRedirectResult(auth).catch((e) => {
+      console.error('[vsm-auth] getRedirectResult falhou:', e.code, e.message, e);
       useAuthStore.setState({ status: 'ready', error: e.code || 'sign-in-failed' });
     });
     unsub = onAuthStateChanged(auth, async (fbUser) => {
@@ -56,18 +58,26 @@ export function initAuth() {
       };
       useAuthStore.setState({ user, status: 'loading' });
 
-      const { doc, getDoc, setDoc, serverTimestamp } = await import('firebase/firestore');
-      const ref = doc(db, 'users', fbUser.uid);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) {
-        await setDoc(ref, {
-          email: user.email, displayName: user.displayName, photoURL: user.photoURL,
-          plan: 'free', planSource: null, flowCount: 0, teamId: null, role: null,
-          createdAt: serverTimestamp(),
-        });
+      let plan = 'free';
+      try {
+        const { doc, getDoc, setDoc, serverTimestamp } = await import('firebase/firestore');
+        const ref = doc(db, 'users', fbUser.uid);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          await setDoc(ref, {
+            email: user.email, displayName: user.displayName, photoURL: user.photoURL,
+            plan: 'free', planSource: null, flowCount: 0, teamId: null, role: null,
+            createdAt: serverTimestamp(),
+          });
+        } else {
+          plan = snap.data().plan || 'free';
+        }
+      } catch (e) {
+        // Firestore indisponível (offline, regra rejeitando etc.) — não deixa
+        // o status preso em 'loading' pra sempre; segue com user logado e plano free.
+        console.error('[vsm-auth] leitura/criação do users/{uid} falhou:', e.code, e.message, e);
       }
 
-      let plan = snap.exists() ? (snap.data().plan || 'free') : 'free';
       try {
         const token = await fbUser.getIdToken();
         const res = await fetch('/api/claim-plan', {
