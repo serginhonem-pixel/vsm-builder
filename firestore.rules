@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isPaid() {
+      return signedIn() && (userDoc().plan == 'pro' || userDoc().plan == 'team');
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.plan == 'free'
+                    && request.resource.data.flowCount == 0
+                    && request.resource.data.teamId == null
+                    && request.resource.data.role == null;
+      allow update: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.plan == resource.data.plan
+                    && request.resource.data.planSource == resource.data.planSource
+                    && request.resource.data.teamId == resource.data.teamId
+                    && request.resource.data.flowCount >= resource.data.flowCount - 1
+                    && request.resource.data.flowCount <= resource.data.flowCount + 1;
+      allow delete: if false;
+    }
+
+    match /flows/{flowId} {
+      function isOwner() { return signedIn() && resource.data.ownerUid == request.auth.uid; }
+      allow read:   if isOwner();
+      allow create: if signedIn() && isPaid()
+                    && request.resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.schemaVersion == 1
+                    && request.resource.data.share.mode == 'private'
+                    && request.resource.data.teamId == null;
+      allow update: if isOwner() && isPaid()
+                    && request.resource.data.ownerUid == resource.data.ownerUid
+                    && request.resource.data.teamId == resource.data.teamId;
+      allow delete: if isOwner();
+    }
+
+    match /pendingPlans/{doc} { allow read, write: if false; }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

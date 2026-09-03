@@ -5,9 +5,14 @@ import VsmLayout from './components/VsmLayout/VsmLayout.jsx';
 import PropertiesPanel from './components/PropertiesPanel/PropertiesPanel.jsx';
 import ShingoDiagram from './components/ShingoDiagram/ShingoDiagram.jsx';
 import GuidedTour from './components/GuidedTour/GuidedTour.jsx';
+import MigrationModal from './components/Auth/MigrationModal.jsx';
 import { Analytics } from '@vercel/analytics/react';
 import { useVsmStore } from './store/useVsmStore.js';
 import Landing from './pages/Landing.jsx';
+import { initSessionPersist } from './lib/sessionPersist.js';
+import { initAuth } from './store/useAuthStore.js';
+import { isFirebaseConfigured } from './lib/firebase.js';
+import SavePromptBanner from './components/Auth/SavePromptBanner.jsx';
 
 const TOUR_SEEN_KEY = 'vsm_tour_seen';
 const MOBILE_HINT_KEY = 'vsm_mobile_hint_seen';
@@ -38,6 +43,14 @@ function EditorApp() {
     }
   }, []);
 
+  useEffect(() => initSessionPersist(), []);
+
+  useEffect(() => {
+    if (!isFirebaseConfigured()) return;
+    const cleanup = initAuth();
+    return cleanup;
+  }, []);
+
   const closeTour = () => {
     localStorage.setItem(TOUR_SEEN_KEY, '1');
     setTour(false);
@@ -54,6 +67,8 @@ function EditorApp() {
         onStartTour={() => { setDrawer(false); setView('vsm'); setTour(true); }}
       />
 
+      <SavePromptBanner />
+
       {mobileNotice && (
         <div className="mobile-hint">
           <span>
@@ -63,6 +78,8 @@ function EditorApp() {
           <button onClick={dismissMobileNotice} aria-label="Fechar aviso">✕</button>
         </div>
       )}
+
+      <MigrationModal />
 
       {tourRunning && (
         <GuidedTour

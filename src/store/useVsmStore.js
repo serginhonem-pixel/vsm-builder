@@ -214,32 +214,4 @@ export const useVsmStore = create((set, get) => ({
     selectedId:  null,
   }),
 
-  saveFlow: (name) => {
-    const s = get();
-    const data = { supplier: s.supplier, customer: s.customer, pcp: s.pcp, processes: s.processes, wips: s.wips, shingoSteps: s.shingoSteps, elements: s.elements };
-    const stored = JSON.parse(localStorage.getItem('vsm-flows') || '{}');
-    stored[name] = { ...data, savedAt: Date.now() };
-    localStorage.setItem('vsm-flows', JSON.stringify(stored));
-  },
-
-  loadFlow: (name) => {
-    const stored = JSON.parse(localStorage.getItem('vsm-flows') || '{}');
-    const data = stored[name];
-    if (!data) return;
-    set({
-      supplier:  data.supplier  || { name: 'FORNECEDOR', product: 'PRODUTO' },
-      customer:  data.customer  || { name: 'CLIENTE' },
-      pcp:       data.pcp       || { name: 'PCP\nMRP' },
-      processes:   data.processes   || [],
-      wips:        data.wips        || [{ id: 'w0', qty: '0', unit: 'pç' }],
-      shingoSteps: data.shingoSteps || [],
-      elements:    data.elements    || [],
-      selectedId: null,
-    });
-  },
-
-  listFlows: () => {
-    const stored = JSON.parse(localStorage.getItem('vsm-flows') || '{}');
-    return Object.keys(stored);
-  },
 }));
