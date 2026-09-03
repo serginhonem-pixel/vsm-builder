@@ -10,7 +10,9 @@ Estado em 2026-09-02 (código já mergeado em `master`, deploy Vercel roda no pu
 | Regras do Firestore publicadas (versão atual do repo) | ✅ feito (2026-09-03, `firebase deploy --only firestore:rules`) |
 | **Env vars na Vercel** | ✅ feito (2026-09-03) — redeploy disparado via push no commit `3b7cc25` |
 | Login com Google (redirect, custom `authDomain`) | ✅ feito (2026-09-03) — ver seção 3.1, testado ponta a ponta |
-| Teste E2E | ⚠️ login confirmado; resto do roteiro (salvar/autosave/migração/chave) ainda não passado |
+| `FIREBASE_SERVICE_ACCOUNT` na Vercel | ✅ feito (2026-09-03) — sem ela `/api/claim-plan` e `/api/cartpanda-webhook` quebram com 500 |
+| Ativação por chave manual (`/api/claim-plan`) | ✅ testado ponta a ponta com chave inválida (200 + "Chave inválida"); falta testar uma chave válida real de `VALID_LICENSES` |
+| Teste E2E | ⚠️ login + chave inválida confirmados; falta salvar/autosave/migração/chave válida |
 | Webhook CartPanda verificado | ❌ PENDENTE (chave manual funciona nesse meio-tempo) |
 
 ---
