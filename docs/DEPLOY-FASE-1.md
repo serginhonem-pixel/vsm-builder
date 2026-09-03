@@ -7,8 +7,8 @@ Estado em 2026-09-02 (código já mergeado em `master`, deploy Vercel roda no pu
 | Projeto Firebase criado (Spark) + Firestore | ✅ feito |
 | Authentication → Google ativado | ✅ feito |
 | Authorized domains (`vsm.betinistudio.com.br`, `localhost`) | ✅ feito |
-| Regras do Firestore publicadas | ⚠️ feito, mas ANTES do `firestore.rules` do repo — **republicar** (ver passo 2) |
-| **Env vars na Vercel** | ❌ PENDENTE — sem isso o recurso fica dormente |
+| Regras do Firestore publicadas (versão atual do repo) | ✅ feito (2026-09-03, `firebase deploy --only firestore:rules`) |
+| **Env vars na Vercel** | ✅ feito (2026-09-03) — redeploy disparado via push no commit `3b7cc25` |
 | Teste E2E | ❌ PENDENTE |
 | Webhook CartPanda verificado | ❌ PENDENTE (chave manual funciona nesse meio-tempo) |
 
