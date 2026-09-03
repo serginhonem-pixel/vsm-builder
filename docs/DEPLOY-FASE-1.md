@@ -9,7 +9,8 @@ Estado em 2026-09-02 (código já mergeado em `master`, deploy Vercel roda no pu
 | Authorized domains (`vsm.betinistudio.com.br`, `localhost`) | ✅ feito |
 | Regras do Firestore publicadas (versão atual do repo) | ✅ feito (2026-09-03, `firebase deploy --only firestore:rules`) |
 | **Env vars na Vercel** | ✅ feito (2026-09-03) — redeploy disparado via push no commit `3b7cc25` |
-| Teste E2E | ❌ PENDENTE |
+| Login com Google (redirect, custom `authDomain`) | ✅ feito (2026-09-03) — ver seção 3.1, testado ponta a ponta |
+| Teste E2E | ⚠️ login confirmado; resto do roteiro (salvar/autosave/migração/chave) ainda não passado |
 | Webhook CartPanda verificado | ❌ PENDENTE (chave manual funciona nesse meio-tempo) |
 
 ---
@@ -51,6 +52,36 @@ npx firebase deploy --only firestore --project <seu-project-id>
 Ou: console → Firestore → Rules → colar o conteúdo de `firestore.rules` → Publish.
 
 (Rodar `npm run test:rules` valida as regras localmente — precisa de Java 11+ e roda via emulador.)
+
+## 3.1 Login com Google — setup que precisa ficar registrado
+
+O login usa `signInWithRedirect` com `authDomain` apontando pro domínio
+próprio (`vsm.betinistudio.com.br`), não o padrão `*.firebaseapp.com` —
+necessário porque redirect com authDomain de outra origem depende de
+storage cross-domain que navegadores atuais bloqueiam em silêncio (sem
+erro nenhum, o login só "não faz nada"). Pra isso funcionar, **3 peças
+precisam estar sincronizadas** — se alguma quebrar no futuro (troca de
+domínio, novo projeto Firebase etc.), refazer as 3:
+
+1. **`vercel.json`** — proxy reverso de `/__/auth/**` pro authDomain
+   real do projeto (`vsm-builder.firebaseapp.com`), listado *antes* do
+   rewrite catch-all do SPA.
+2. **`VITE_FIREBASE_AUTH_DOMAIN`** (env var na Vercel) = domínio
+   próprio (`vsm.betinistudio.com.br`), não o `*.firebaseapp.com` que
+   o Firebase Console sugere por padrão.
+3. **Google Cloud Console** → APIs & Services → Credentials → OAuth
+   2.0 Client ID (Web client auto-criado pelo Firebase) →
+   **Authorized redirect URIs** precisa incluir
+   `https://vsm.betinistudio.com.br/__/auth/handler`, e **Authorized
+   JavaScript origins** precisa incluir `https://vsm.betinistudio.com.br`.
+   (Isso é separado da lista "Authorized domains" do Firebase Auth —
+   dá pra ter uma certa e a outra errada.)
+
+Também: `vite.config.js` → `navigateFallbackDenylist` do Service
+Worker exclui `/^\/__\//` (além de `/^\/api\//`) — sem isso o SW
+intercepta a navegação do handler OAuth e serve o `index.html` em
+cache no lugar, e o login "trava"/"pisca" sem erro nenhum em lugar
+nenhum (foi a causa mais difícil de achar nessa depuração).
 
 ## 3. Teste E2E
 
