@@ -28,7 +28,10 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//],
+        // /api/ (funções serverless) e /__/ (proxy do handler OAuth do Firebase,
+        // ver vercel.json) precisam bater na rede de verdade — o SW não pode
+        // servir o index.html em cache no lugar dessas rotas.
+        navigateFallbackDenylist: [/^\/api\//, /^\/__\//],
         runtimeCaching: [
           {
             urlPattern: ({ url }) =>
