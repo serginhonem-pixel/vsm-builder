@@ -13,8 +13,11 @@ export const useAuthStore = create((set, get) => ({
     set({ status: 'loading', error: null });
     try {
       const { auth } = await getFirebase();
-      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const { signInWithRedirect, GoogleAuthProvider } = await import('firebase/auth');
+      // signInWithRedirect (em vez de signInWithPopup): evita falhas silenciosas
+      // em navegadores que bloqueiam popups/cookies de terceiros — a página
+      // navega pro Google e volta; onAuthStateChanged/getRedirectResult tratam o retorno.
+      await signInWithRedirect(auth, new GoogleAuthProvider());
     } catch (e) {
       set({ status: 'ready', error: e.code || 'sign-in-failed' });
     }
@@ -35,8 +38,13 @@ export function initAuth() {
   let cancelled = false;
   (async () => {
     const { auth, db } = await getFirebase();
-    const { onAuthStateChanged } = await import('firebase/auth');
+    const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth');
     if (cancelled) return;
+    // Captura erro do retorno do signInWithRedirect (ex.: domínio não autorizado)
+    // pra não falhar em silêncio — onAuthStateChanged cobre o caso de sucesso.
+    getRedirectResult(auth).catch((e) => {
+      useAuthStore.setState({ status: 'ready', error: e.code || 'sign-in-failed' });
+    });
     unsub = onAuthStateChanged(auth, async (fbUser) => {
       if (!fbUser) {
         useAuthStore.setState({ user: null, plan: 'free', status: 'ready' });

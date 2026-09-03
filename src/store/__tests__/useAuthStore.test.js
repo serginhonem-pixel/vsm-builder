@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockAuth = {};
 const onAuthStateChanged = vi.fn();
-const signInWithPopup = vi.fn();
+const signInWithRedirect = vi.fn();
+const getRedirectResult = vi.fn();
 const fbSignOut = vi.fn();
 const getDoc = vi.fn();
 const setDoc = vi.fn();
@@ -13,7 +14,8 @@ vi.mock('../../lib/firebase.js', () => ({
 }));
 vi.mock('firebase/auth', () => ({
   onAuthStateChanged: (...a) => onAuthStateChanged(...a),
-  signInWithPopup: (...a) => signInWithPopup(...a),
+  signInWithRedirect: (...a) => signInWithRedirect(...a),
+  getRedirectResult: (...a) => getRedirectResult(...a),
   signOut: (...a) => fbSignOut(...a),
   GoogleAuthProvider: class {},
 }));
@@ -26,6 +28,7 @@ global.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ plan: 'pro' }
 beforeEach(() => {
   vi.clearAllMocks();
   getDoc.mockResolvedValue({ exists: () => false });
+  getRedirectResult.mockResolvedValue(null);
 });
 
 describe('initAuth', () => {

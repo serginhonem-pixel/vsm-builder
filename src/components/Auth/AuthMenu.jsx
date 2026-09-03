@@ -9,6 +9,7 @@ export default function AuthMenu() {
   const user = useAuthStore((s) => s.user);
   const plan = useAuthStore((s) => s.plan);
   const status = useAuthStore((s) => s.status);
+  const error = useAuthStore((s) => s.error);
   const signIn = useAuthStore((s) => s.signInWithGoogle);
   const signOut = useAuthStore((s) => s.signOut);
   const [open, setOpen] = useState(false);
@@ -17,10 +18,13 @@ export default function AuthMenu() {
 
   if (!user) {
     return (
-      <button type="button" className="hbtn auth-signin" onClick={signIn}
-        disabled={status === 'loading'}>
-        {status === 'loading' ? 'Entrando…' : 'Entrar'}
-      </button>
+      <span className="auth-signin-wrap">
+        <button type="button" className="hbtn auth-signin" onClick={signIn}
+          disabled={status === 'loading'}>
+          {status === 'loading' ? 'Entrando…' : 'Entrar'}
+        </button>
+        {error && <span className="auth-signin-error">Não foi possível entrar. Tente de novo.</span>}
+      </span>
     );
   }
 

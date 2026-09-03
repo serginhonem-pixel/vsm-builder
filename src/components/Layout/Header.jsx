@@ -162,6 +162,14 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
           <div data-tour="file-actions" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <button type="button" className="hbtn" onClick={clearCanvas}>Novo fluxo</button>
             <button type="button" className="hbtn" onClick={handleSalvar}>Salvar</button>
+            <label className="hlabel">
+              Abrir fluxo salvo
+              <select className="hinput" value={loadName} onChange={(e) => setLoadName(e.target.value)}>
+                <option value="">Selecione</option>
+                {saved.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+              </select>
+            </label>
+            <button type="button" className="hbtn" onClick={handleAbrir} disabled={!loadName}>↩</button>
             <button type="button" className="hbtn hbtn-pdf" onClick={() => exportPdf(name.trim(), reportRef.current)}>Exportar PDF</button>
           </div>
 
@@ -213,14 +221,6 @@ export default function Header({ onOpenShingo, onBackToVsm, activeView, drawerOp
             Nome do fluxo
             <input className="hinput" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Carrinho, Telha..." />
           </label>
-          <label className="hlabel">
-            Abrir fluxo salvo
-            <select className="hinput" value={loadName} onChange={(e) => setLoadName(e.target.value)}>
-              <option value="">Selecione</option>
-              {saved.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
-            </select>
-          </label>
-          <button type="button" className="hbtn" onClick={handleAbrir} disabled={!loadName}>↩</button>
         </div>
 
         <div className="header-sep" />

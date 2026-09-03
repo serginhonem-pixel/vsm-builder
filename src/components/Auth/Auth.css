@@ -4,6 +4,25 @@
   white-space: nowrap;
 }
 
+.auth-signin-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.auth-signin-error {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--red, #e33);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  padding: 3px 7px;
+  z-index: 60;
+}
+
 .auth-menu {
   position: relative;
   display: inline-block;

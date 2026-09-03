@@ -38,9 +38,33 @@ export default function LicenseModal({ reason, onClose, onActivated }) {
       <div className="license-modal" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="license-close" onClick={onClose}>✕</button>
         <h2>Assine o VSM Builder Pro</h2>
-        {reason && <p className="license-reason">{reason}</p>}
-        <p>Salve seus mapas na nuvem e abra de qualquer dispositivo.</p>
-        {/* TODO produto: botão de compra CartPanda aqui */}
+        <p>{reason || 'Salve seus mapas na nuvem e abra de qualquer dispositivo.'}</p>
+
+        {isFirebaseConfigured() && (
+          <div className="license-plans">
+            <div className="license-plan">
+              <span className="license-plan-price">R$27<small>/mês</small></span>
+              <span className="license-plan-label">Mensal</span>
+            </div>
+            <div className="license-plan">
+              <span className="license-plan-price">R$270<small>/ano</small></span>
+              <span className="license-plan-label">Anual · 2 meses grátis</span>
+            </div>
+          </div>
+        )}
+        {isFirebaseConfigured() && (
+          <div className="license-buy-links">
+            <a className="license-activate-btn license-buy-whatsapp"
+              href="https://wa.me/5527997836020?text=Quero%20assinar%20o%20VSM%20Builder%20Pro"
+              target="_blank" rel="noopener noreferrer">
+              Assinar pelo WhatsApp
+            </a>
+            <a className="license-buy-email"
+              href="mailto:sergiobetinim@gmail.com?subject=Quero%20assinar%20o%20VSM%20Builder%20Pro">
+              ou por e-mail: sergiobetinim@gmail.com
+            </a>
+          </div>
+        )}
 
         {!isFirebaseConfigured() ? (
           <p className="license-reason">
