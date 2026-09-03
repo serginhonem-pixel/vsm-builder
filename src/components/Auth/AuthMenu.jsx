@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/useAuthStore.js';
+import { isFirebaseConfigured } from '../../lib/firebase.js';
 import './Auth.css';
 
 const PLAN_LABEL = { free: 'Grátis', pro: 'Pro', team: 'Time' };
@@ -11,6 +12,8 @@ export default function AuthMenu() {
   const signIn = useAuthStore((s) => s.signInWithGoogle);
   const signOut = useAuthStore((s) => s.signOut);
   const [open, setOpen] = useState(false);
+
+  if (!isFirebaseConfigured()) return null;
 
   if (!user) {
     return (

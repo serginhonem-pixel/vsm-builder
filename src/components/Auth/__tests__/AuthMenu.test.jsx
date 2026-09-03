@@ -10,7 +10,10 @@ vi.mock('../../../store/useAuthStore.js', () => ({
   isPaid: (s) => s.plan !== 'free',
 }));
 
-beforeEach(() => { vi.clearAllMocks(); sessionStorage.clear(); state = { user: null, plan: 'free', status: 'ready', signInWithGoogle, signOut }; });
+let fbConfigured = true;
+vi.mock('../../../lib/firebase.js', () => ({ isFirebaseConfigured: () => fbConfigured }));
+
+beforeEach(() => { vi.clearAllMocks(); sessionStorage.clear(); fbConfigured = true; state = { user: null, plan: 'free', status: 'ready', signInWithGoogle, signOut }; });
 
 describe('AuthMenu', () => {
   it('deslogado mostra "Entrar" e chama signIn', async () => {
@@ -41,5 +44,20 @@ describe('SavePromptBanner', () => {
     const { default: SavePromptBanner } = await import('../SavePromptBanner.jsx');
     render(<SavePromptBanner />);
     expect(screen.getByText(/salvar seu trabalho/i)).toBeInTheDocument();
+  });
+  it('some quando Firebase não configurado', async () => {
+    fbConfigured = false;
+    const { default: SavePromptBanner } = await import('../SavePromptBanner.jsx');
+    const { container } = render(<SavePromptBanner />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe('AuthMenu', () => {
+  it('some quando Firebase não configurado', async () => {
+    fbConfigured = false;
+    const { default: AuthMenu } = await import('../AuthMenu.jsx');
+    const { container } = render(<AuthMenu />);
+    expect(container).toBeEmptyDOMElement();
   });
 });

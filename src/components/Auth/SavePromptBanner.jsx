@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore, isPaid } from '../../store/useAuthStore.js';
+import { isFirebaseConfigured } from '../../lib/firebase.js';
 import './Auth.css';
 
 const HIDE_KEY = 'vsm-saveprompt-hidden';
@@ -10,7 +11,7 @@ export default function SavePromptBanner() {
     try { return sessionStorage.getItem(HIDE_KEY) === '1'; } catch { return false; }
   });
 
-  if (isPaid(state) || hidden) return null;
+  if (!isFirebaseConfigured() || isPaid(state) || hidden) return null;
 
   const dismiss = () => {
     try { sessionStorage.setItem(HIDE_KEY, '1'); } catch { /* ignora */ }

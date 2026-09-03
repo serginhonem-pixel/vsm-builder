@@ -9,10 +9,15 @@ vi.mock('../../../store/useAuthStore.js', () => ({
   }),
   isPaid: (s) => s.plan !== 'free',
 }));
+
+let fbConfigured = true;
+vi.mock('../../../lib/firebase.js', () => ({ isFirebaseConfigured: () => fbConfigured }));
+
 global.fetch = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
+  fbConfigured = true;
   state = {
     user: { getIdToken: async () => 'tok' }, plan: 'free',
     signInWithGoogle: vi.fn(),
@@ -36,5 +41,13 @@ describe('LicenseModal upsell', () => {
     const { default: LicenseModal } = await import('../LicenseModal.jsx');
     render(<LicenseModal onClose={() => {}} onActivated={() => {}} />);
     expect(screen.getByText(/entre primeiro/i)).toBeInTheDocument();
+  });
+
+  it('sem Firebase configurado: mostra aviso "em breve", sem botão de login', async () => {
+    fbConfigured = false;
+    const { default: LicenseModal } = await import('../LicenseModal.jsx');
+    render(<LicenseModal onClose={() => {}} onActivated={() => {}} />);
+    expect(screen.getByText(/em breve/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /entrar com google/i })).toBeNull();
   });
 });

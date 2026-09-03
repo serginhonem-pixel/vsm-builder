@@ -20,6 +20,7 @@ vi.mock('../../../store/useAuthStore.js', () => ({
     { getState: () => authState }),
   isPaid: (s) => s.plan !== 'free',
 }));
+vi.mock('../../../lib/firebase.js', () => ({ isFirebaseConfigured: () => true }));
 vi.mock('../../Yamazumi/Yamazumi.jsx', () => ({ default: () => null }));
 vi.mock('../../Comparison/ComparisonView.jsx', () => ({ default: () => null }));
 vi.mock('../../ReportPdf/ReportPdf.jsx', () => ({ default: () => null }));

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/useAuthStore.js';
+import { isFirebaseConfigured } from '../../lib/firebase.js';
 import './License.css';
 
 export default function LicenseModal({ reason, onClose, onActivated }) {
@@ -41,7 +42,11 @@ export default function LicenseModal({ reason, onClose, onActivated }) {
         <p>Salve seus mapas na nuvem e abra de qualquer dispositivo.</p>
         {/* TODO produto: botão de compra CartPanda aqui */}
 
-        {!user ? (
+        {!isFirebaseConfigured() ? (
+          <p className="license-reason">
+            O salvamento na nuvem chega em breve. Por enquanto, use <strong>Exportar PDF</strong> ou <strong>Exportar JSON</strong> para guardar seu trabalho.
+          </p>
+        ) : !user ? (
           <>
             <p className="license-reason">Entre primeiro para ativar sua licença ou assinatura.</p>
             <button type="button" className="license-activate-btn" onClick={signIn}>Entrar com Google</button>
