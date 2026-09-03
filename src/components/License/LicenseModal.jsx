@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/useAuthStore.js';
-import { isFirebaseConfigured } from '../../lib/firebase.js';
+import { isFirebaseConfigured, getFirebase } from '../../lib/firebase.js';
 import './License.css';
 
 export default function LicenseModal({ reason, onClose, onActivated }) {
@@ -13,7 +13,10 @@ export default function LicenseModal({ reason, onClose, onActivated }) {
   const handleActivate = async () => {
     setStatus('loading'); setError('');
     try {
-      const token = await user.getIdToken();
+      // `user` no store é um objeto simples (uid/email/nome/foto) só pra exibir —
+      // não tem getIdToken(). Pega o usuário real do Firebase Auth pro token.
+      const { auth } = await getFirebase();
+      const token = await auth.currentUser.getIdToken();
       const res = await fetch('/api/claim-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -27,7 +30,8 @@ export default function LicenseModal({ reason, onClose, onActivated }) {
       }
       setStatus('error');
       setError('Chave inválida. Confira e tente de novo.');
-    } catch {
+    } catch (e) {
+      console.error('[vsm-license] ativação da chave falhou:', e);
       setStatus('error');
       setError('Não foi possível validar agora. Tente de novo em instantes.');
     }

@@ -11,7 +11,13 @@ vi.mock('../../../store/useAuthStore.js', () => ({
 }));
 
 let fbConfigured = true;
-vi.mock('../../../lib/firebase.js', () => ({ isFirebaseConfigured: () => fbConfigured }));
+const getIdToken = vi.fn(async () => 'tok');
+vi.mock('../../../lib/firebase.js', () => ({
+  isFirebaseConfigured: () => fbConfigured,
+  // `user` no store é só um objeto simples (ver useAuthStore.js) — o token
+  // real vem do Firebase Auth, por isso o mock fica aqui e não em `state.user`.
+  getFirebase: async () => ({ auth: { currentUser: { getIdToken } } }),
+}));
 
 global.fetch = vi.fn();
 
@@ -19,7 +25,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   fbConfigured = true;
   state = {
-    user: { getIdToken: async () => 'tok' }, plan: 'free',
+    user: { uid: 'u1', email: 'a@b.com', displayName: 'A', photoURL: null }, plan: 'free',
     signInWithGoogle: vi.fn(),
   };
 });
